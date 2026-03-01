@@ -27,25 +27,27 @@ enum SentenceSegmenter {
 
     /// Merge segments shorter than `minDuration` with the following segment.
     static func mergeShortSegments(_ slices: [SentenceSlice], minDuration: Double) -> [SentenceSlice] {
-        guard !slices.isEmpty else { return slices }
+        guard !slices.isEmpty else { return [] }
+        guard slices.count > 1 else { return slices }
 
         var merged: [SentenceSlice] = []
         var pending: SentenceSlice? = nil
 
         for slice in slices {
             if let p = pending {
-                // Merge pending into this slice
-                let combinedText = p.text + " " + slice.text
-                let combinedStart = p.startSec ?? slice.startSec
-                let combinedEnd = slice.endSec ?? p.endSec
-                pending = nil
-                let combined = SentenceSlice(text: combinedText, startSec: combinedStart, endSec: combinedEnd)
+                // Combine pending with current slice
+                let combined = SentenceSlice(
+                    text: p.text + " " + slice.text,
+                    startSec: p.startSec ?? slice.startSec,
+                    endSec: slice.endSec ?? p.endSec
+                )
 
                 // Check if the combined result is still too short
                 if duration(of: combined) < minDuration {
                     pending = combined
                 } else {
                     merged.append(combined)
+                    pending = nil
                 }
             } else if duration(of: slice) < minDuration {
                 pending = slice
@@ -56,12 +58,15 @@ enum SentenceSegmenter {
 
         // Flush any remaining pending segment
         if let p = pending {
-            if var last = merged.last {
+            if let last = merged.last {
                 merged.removeLast()
-                let combinedText = last.text + " " + p.text
-                last = SentenceSlice(text: combinedText, startSec: last.startSec, endSec: p.endSec ?? last.endSec)
-                merged.append(last)
+                merged.append(SentenceSlice(
+                    text: last.text + " " + p.text,
+                    startSec: last.startSec,
+                    endSec: p.endSec ?? last.endSec
+                ))
             } else {
+                // All segments were too short, return the pending one
                 merged.append(p)
             }
         }
