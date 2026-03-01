@@ -44,13 +44,13 @@ extension Color {
     /// Info - Sky blue
     static let themeInfo = Color(hex: "0EA5E9")!
 
-    // MARK: - Neutral Colors
-    static let themeBackground = Color(hex: "F8FAFC")!
-    static let themeCardBackground = Color(hex: "FFFFFF")!
-    static let themeBorder = Color(hex: "E2E8F0")!
-    static let themeTextPrimary = Color(hex: "1E293B")!
-    static let themeTextSecondary = Color(hex: "64748B")!
-    static let themeTextTertiary = Color(hex: "94A3B8")!
+    // MARK: - Neutral Colors (adaptive for dark/light mode)
+    static let themeBackground = Color(.systemGroupedBackground)
+    static let themeCardBackground = Color(.systemBackground)
+    static let themeBorder = Color(.separator)
+    static let themeTextPrimary = Color(.label)
+    static let themeTextSecondary = Color(.secondaryLabel)
+    static let themeTextTertiary = Color(.tertiaryLabel)
 
     // MARK: - Diff Token Colors
     static let diffCorrectBg = Color(hex: "D1FAE5")!

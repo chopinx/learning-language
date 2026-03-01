@@ -196,7 +196,8 @@ User assumptions:
 - **Hold-to-record button**: large circular button.
   - Press and hold: starts recording, shows waveform + duration + "Release to compare" hint.
   - Release: auto-stops recording → auto-transcribes via Deepgram → auto-compares → shows score.
-  - Swipe up while holding: cancels recording. Show "↑ Swipe up to cancel" indicator ABOVE the button during recording. Show "Release to cancel" when swiped up past threshold. The button must not move position during the gesture.
+  - Swipe up while holding: cancels recording. Show "↑ Swipe up to cancel" indicator ABOVE the button during recording. Show "Release to cancel" when swiped up past threshold. The button follows the finger during drag but stays at its original position on initial press.
+- App must support dark mode and light mode, following the system setting.
 - Diff-highlighted compare result with accuracy percentage.
 - Summary chips: missing/wrong/extra counts.
 - `Done and Next` CTA with accuracy score.

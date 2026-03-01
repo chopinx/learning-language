@@ -366,6 +366,8 @@ struct PracticeView: View {
             // Icon overlay
             buttonIcon
         }
+        .offset(y: audioController.isRecording ? min(0, dragOffset) : 0)
+        .animation(.interactiveSpring, value: dragOffset)
         .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { value in
