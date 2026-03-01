@@ -68,30 +68,27 @@ struct HomeView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
-                    .padding(.bottom, 96)
+                    .padding(.horizontal)
+                    .padding(.bottom, 70)
                 }
             }
-            .navigationTitle("")
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .bottom) {
                 Button {
                     showImportSheet = true
                 } label: {
                     Label("New Session", systemImage: "plus.circle.fill")
                         .font(.headline.weight(.semibold))
-                        .frame(maxWidth: .infinity, minHeight: 56)
-                        .padding(.vertical, 14)
+                        .frame(maxWidth: .infinity, minHeight: 48)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.white)
                 .background(
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
                         .fill(AppTheme.primaryButton)
                 )
-                .padding(.horizontal, 28)
-                .padding(.vertical, 10)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 4)
                 .background(
                     LinearGradient(
                         colors: [Color.clear, Color.white.opacity(0.78)],

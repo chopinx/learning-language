@@ -17,12 +17,13 @@ struct SettingsView: View {
                         workspaceSection
                         aboutSection
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.large)
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 apiKeyDraft = apiKeyManager.savedKey ?? ""

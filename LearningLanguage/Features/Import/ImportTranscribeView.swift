@@ -84,9 +84,9 @@ struct ImportTranscribeView: View {
                                 .appCard()
                         }
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
-                    .padding(.bottom, 96)
+                    .padding(.horizontal)
+                    .padding(.top, 4)
+                    .padding(.bottom, 70)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)

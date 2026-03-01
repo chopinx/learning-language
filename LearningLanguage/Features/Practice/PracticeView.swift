@@ -53,8 +53,9 @@ struct PracticeView: View {
                                     .foregroundStyle(.red)
                             }
                         }
-                        .padding()
-                        .padding(.bottom, compareResult == nil ? 24 : 94)
+                        .padding(.horizontal)
+                        .padding(.top, 4)
+                        .padding(.bottom, compareResult == nil ? 16 : 70)
                     }
                 }
                 .safeAreaInset(edge: .bottom) {

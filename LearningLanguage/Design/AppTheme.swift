@@ -94,12 +94,12 @@ enum AppTheme {
 private struct AppCardModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .padding(14)
+            .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(AppTheme.cardBackground)
-                    .shadow(color: Color(red: 0.04, green: 0.17, blue: 0.26).opacity(0.08), radius: 12, x: 0, y: 10)
+                    .shadow(color: Color(red: 0.04, green: 0.17, blue: 0.26).opacity(0.06), radius: 8, x: 0, y: 4)
             )
     }
 }
