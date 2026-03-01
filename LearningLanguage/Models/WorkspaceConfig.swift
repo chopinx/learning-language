@@ -64,6 +64,7 @@ struct WorkspaceConfig: Codable, Hashable {
             activeWorkspaces: config.activeWorkspaces,
             defaultWorkspace: config.defaultWorkspace,
             hasSeenOnboarding: config.hasSeenOnboarding,
+            minSentenceDuration: config.minSentenceDuration,
             updatedAt: config.updatedAt
         )
     }
