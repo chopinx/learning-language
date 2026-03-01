@@ -286,48 +286,37 @@ struct PracticeView: View {
 
     private var holdToRecordSection: some View {
         VStack(spacing: 12) {
-            Text("Your recording")
-                .font(.subheadline.weight(.bold))
-                .foregroundStyle(Color.themeTextPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            // Duration — always visible, shows 00:00 when idle
+            Text(formattedDuration)
+                .font(.title2.weight(.bold).monospacedDigit())
+                .foregroundStyle(audioController.isRecording ? Color.themeTextPrimary : Color.themeTextTertiary)
 
-            // Fixed-height area above button for recording info
-            VStack(spacing: 8) {
-                if audioController.isRecording || isProcessing {
-                    Text(formattedDuration)
-                        .font(.title.weight(.bold).monospacedDigit())
-                        .foregroundStyle(Color.themeTextPrimary)
+            // Waveform — always reserves space (28pt height)
+            waveformView
+                .opacity(audioController.audioLevels.isEmpty ? 0 : 1)
 
-                    if !audioController.audioLevels.isEmpty {
-                        waveformView
+            // Swipe hint — only text changes, always reserves space
+            Group {
+                if isCancelling {
+                    Text("Release to cancel")
+                        .foregroundStyle(Color.themeError)
+                } else if audioController.isRecording {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.up")
+                        Text("Swipe up to cancel")
                     }
-
-                    if isCancelling {
-                        Text("Release to cancel")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(Color.themeError)
-                    } else {
-                        HStack(spacing: 6) {
-                            Image(systemName: "chevron.up")
-                                .font(.caption.weight(.bold))
-                            Text("Swipe up to cancel")
-                                .font(.caption.weight(.medium))
-                        }
-                        .foregroundStyle(Color.themeTextSecondary)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 6)
-                        .background(Color(.systemGray6), in: Capsule())
-                    }
+                    .foregroundStyle(Color.themeTextSecondary)
+                } else {
+                    Text(" ") // Invisible placeholder to reserve height
                 }
             }
-            .frame(minHeight: 0)
-            .animation(.easeInOut(duration: 0.15), value: audioController.isRecording)
+            .font(.caption.weight(.medium))
 
-            // Button — always at the same position in the card
+            // Button — never moves
             holdToRecordButton
                 .accessibilityIdentifier("recordButton")
 
-            // Caption below button
+            // Caption below
             Text(bottomCaption)
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(Color.themeTextSecondary)
