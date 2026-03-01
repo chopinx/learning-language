@@ -92,6 +92,7 @@ struct PracticeView: View {
             }
             .padding()
         }
+        .overlay { recordingOverlay }
         .overlay {
             if let result = compareResult {
                 comparisonPopup(result: result)
@@ -285,17 +286,27 @@ struct PracticeView: View {
     // MARK: - Hold-to-Record Section
 
     private var holdToRecordSection: some View {
-        VStack(spacing: 12) {
-            Text("Your recording")
-                .font(.subheadline.weight(.bold))
-                .foregroundStyle(Color.themeTextPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 8) {
+            holdToRecordButton
+                .accessibilityIdentifier("recordButton")
 
-            // Fixed-height area above button for recording info
-            VStack(spacing: 8) {
-                if audioController.isRecording || isProcessing {
+            Text(bottomCaption)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Color.themeTextSecondary)
+        }
+        .appCard()
+    }
+
+    /// Floating recording overlay — shown on top of everything during recording
+    @ViewBuilder
+    private var recordingOverlay: some View {
+        if audioController.isRecording || isProcessing {
+            VStack(spacing: 12) {
+                Spacer()
+
+                VStack(spacing: 10) {
                     Text(formattedDuration)
-                        .font(.title.weight(.bold).monospacedDigit())
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold).monospacedDigit())
                         .foregroundStyle(Color.themeTextPrimary)
 
                     if !audioController.audioLevels.isEmpty {
@@ -304,9 +315,9 @@ struct PracticeView: View {
 
                     if isCancelling {
                         Text("Release to cancel")
-                            .font(.caption.weight(.semibold))
+                            .font(.subheadline.weight(.semibold))
                             .foregroundStyle(Color.themeError)
-                    } else {
+                    } else if !isProcessing {
                         HStack(spacing: 6) {
                             Image(systemName: "chevron.up")
                                 .font(.caption.weight(.bold))
@@ -318,21 +329,21 @@ struct PracticeView: View {
                         .padding(.vertical, 6)
                         .background(Color(.systemGray6), in: Capsule())
                     }
+
+                    if isProcessing {
+                        ProgressView("Transcribing...")
+                            .font(.caption)
+                    }
                 }
+                .padding(24)
+                .frame(maxWidth: .infinity)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+                .padding(.horizontal)
+                .padding(.bottom, 120) // Position above the button area
             }
-            .frame(minHeight: 0)
-            .animation(.easeInOut(duration: 0.15), value: audioController.isRecording)
-
-            // Button — always at the same position in the card
-            holdToRecordButton
-                .accessibilityIdentifier("recordButton")
-
-            // Caption below button
-            Text(bottomCaption)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(Color.themeTextSecondary)
+            .transition(.opacity.combined(with: .move(edge: .bottom)))
+            .animation(.easeInOut(duration: 0.2), value: audioController.isRecording)
         }
-        .appCard()
     }
 
     private var bottomCaption: String {
