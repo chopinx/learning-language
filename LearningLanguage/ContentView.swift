@@ -12,6 +12,7 @@ struct ContentView: View {
             SettingsView(viewModel: viewModel, apiKeyManager: viewModel.apiKeyManager)
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
         }
+        .background(Color(.systemBackground).ignoresSafeArea())
         .onAppear {
             if viewModel.shouldShowOnboardingGuide {
                 showOnboardingGuide = true
