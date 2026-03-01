@@ -61,19 +61,38 @@ enum TranscriptDiffer {
         return DiffResult(tokens: tokens, summary: summary)
     }
 
-    /// Find which source word indices the user matched, using fuzzy matching and preserving order.
+    /// Find which source word indices the user matched using LCS (Longest Common Subsequence)
+    /// with fuzzy word matching. Returns the maximum set of source words said in order.
     private static func findMatches(source: [String], user: [String]) -> Set<Int> {
-        var matched: Set<Int> = []
-        var userIndex = 0
+        let n = source.count
+        let m = user.count
+        guard n > 0, m > 0 else { return [] }
 
-        for (sourceIndex, sourceWord) in source.enumerated() {
-            while userIndex < user.count {
-                if fuzzyMatch(sourceWord, user[userIndex]) {
-                    matched.insert(sourceIndex)
-                    userIndex += 1
-                    break
+        // Build LCS table with fuzzy matching
+        var dp = Array(repeating: Array(repeating: 0, count: m + 1), count: n + 1)
+
+        for i in 1...n {
+            for j in 1...m {
+                if fuzzyMatch(source[i - 1], user[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1
+                } else {
+                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
                 }
-                userIndex += 1
+            }
+        }
+
+        // Backtrack to find which source indices matched
+        var matched: Set<Int> = []
+        var i = n, j = m
+        while i > 0 && j > 0 {
+            if fuzzyMatch(source[i - 1], user[j - 1]) && dp[i][j] == dp[i - 1][j - 1] + 1 {
+                matched.insert(i - 1)
+                i -= 1
+                j -= 1
+            } else if dp[i - 1][j] >= dp[i][j - 1] {
+                i -= 1
+            } else {
+                j -= 1
             }
         }
 
