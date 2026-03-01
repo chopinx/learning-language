@@ -67,21 +67,17 @@ final class PracticeAudioController: NSObject, ObservableObject {
         player.currentTime = targetTime
         playbackProgress = max(0, min(1, progress))
 
-        // Reset stop timer for remaining time
-        playbackStopTimer?.invalidate()
-        let remaining = currentEndSec - targetTime
-        if remaining > 0 {
-            playbackStopTimer = Timer.scheduledTimer(withTimeInterval: remaining, repeats: false) { [weak self] _ in
-                Task { @MainActor in
-                    self?.stopPlayback()
+        if isPlaying {
+            // Reset stop timer for remaining time
+            playbackStopTimer?.invalidate()
+            let remaining = currentEndSec - targetTime
+            if remaining > 0 {
+                playbackStopTimer = Timer.scheduledTimer(withTimeInterval: remaining, repeats: false) { [weak self] _ in
+                    Task { @MainActor in
+                        self?.stopPlayback()
+                    }
                 }
             }
-        }
-
-        if !player.isPlaying {
-            player.play()
-            isPlaying = true
-            startPlaybackProgressTimer()
         }
     }
 
