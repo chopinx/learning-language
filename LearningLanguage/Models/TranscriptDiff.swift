@@ -27,106 +27,97 @@ struct DiffToken: Codable, Hashable, Identifiable {
 }
 
 enum TranscriptDiffer {
-    private enum Operation {
-        case match(String, String)
-        case substitute(String, String)
-        case delete(String)
-        case insert(String)
-    }
+    /// Minimum ratio of matching characters for two words to be considered a match.
+    static let fuzzyMatchThreshold: Double = 0.7
 
     static func compare(source: String, user: String) -> DiffResult {
         let sourceWords = normalizedWords(from: source)
         let userWords = normalizedWords(from: user)
-        let operations = align(source: sourceWords, user: userWords)
+
+        // Find which source words the user said (fuzzy match, order-preserving)
+        let matched = findMatches(source: sourceWords, user: userWords)
 
         var tokens: [DiffToken] = []
-        var summary = DiffSummary(correctCount: 0, missingCount: 0, wrongCount: 0, extraCount: 0)
+        var correctCount = 0
+        var missingCount = 0
 
-        for operation in operations {
-            switch operation {
-            case let .match(sourceWord, userWord):
-                summary.correctCount += 1
-                tokens.append(DiffToken(id: UUID(), sourceWord: sourceWord, userWord: userWord, kind: .correct))
-            case let .substitute(sourceWord, userWord):
-                summary.wrongCount += 1
-                tokens.append(DiffToken(id: UUID(), sourceWord: sourceWord, userWord: userWord, kind: .wrong))
-            case let .delete(sourceWord):
-                summary.missingCount += 1
-                tokens.append(DiffToken(id: UUID(), sourceWord: sourceWord, userWord: nil, kind: .missing))
-            case let .insert(userWord):
-                summary.extraCount += 1
-                tokens.append(DiffToken(id: UUID(), sourceWord: nil, userWord: userWord, kind: .extra))
+        for (index, word) in sourceWords.enumerated() {
+            if matched.contains(index) {
+                correctCount += 1
+                tokens.append(DiffToken(id: UUID(), sourceWord: word, userWord: word, kind: .correct))
+            } else {
+                missingCount += 1
+                tokens.append(DiffToken(id: UUID(), sourceWord: word, userWord: nil, kind: .missing))
             }
         }
+
+        let summary = DiffSummary(
+            correctCount: correctCount,
+            missingCount: missingCount,
+            wrongCount: 0,
+            extraCount: 0
+        )
 
         return DiffResult(tokens: tokens, summary: summary)
     }
 
-    private static func align(source: [String], user: [String]) -> [Operation] {
-        let n = source.count
-        let m = user.count
+    /// Find which source word indices the user matched, using fuzzy matching and preserving order.
+    private static func findMatches(source: [String], user: [String]) -> Set<Int> {
+        var matched: Set<Int> = []
+        var userIndex = 0
 
-        var dp = Array(repeating: Array(repeating: 0, count: m + 1), count: n + 1)
-
-        for i in 0...n {
-            dp[i][0] = i
-        }
-
-        for j in 0...m {
-            dp[0][j] = j
-        }
-
-        if n > 0, m > 0 {
-            for i in 1...n {
-                for j in 1...m {
-                    if source[i - 1] == user[j - 1] {
-                        dp[i][j] = dp[i - 1][j - 1]
-                    } else {
-                        dp[i][j] = min(
-                            dp[i - 1][j] + 1,
-                            dp[i][j - 1] + 1,
-                            dp[i - 1][j - 1] + 1
-                        )
-                    }
+        for (sourceIndex, sourceWord) in source.enumerated() {
+            while userIndex < user.count {
+                if fuzzyMatch(sourceWord, user[userIndex]) {
+                    matched.insert(sourceIndex)
+                    userIndex += 1
+                    break
                 }
+                userIndex += 1
             }
         }
 
-        var i = n
-        var j = m
-        var operations: [Operation] = []
-
-        while i > 0 || j > 0 {
-            if i > 0, j > 0, source[i - 1] == user[j - 1], dp[i][j] == dp[i - 1][j - 1] {
-                operations.append(.match(source[i - 1], user[j - 1]))
-                i -= 1
-                j -= 1
-            } else if i > 0, j > 0, dp[i][j] == dp[i - 1][j - 1] + 1 {
-                operations.append(.substitute(source[i - 1], user[j - 1]))
-                i -= 1
-                j -= 1
-            } else if i > 0, dp[i][j] == dp[i - 1][j] + 1 {
-                operations.append(.delete(source[i - 1]))
-                i -= 1
-            } else if j > 0 {
-                operations.append(.insert(user[j - 1]))
-                j -= 1
-            }
-        }
-
-        return operations.reversed()
+        return matched
     }
 
-    private static func normalizedWords(from text: String) -> [String] {
-        let allowedSet = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "'"))
+    /// Two words match if they share at least 70% of characters (longest common subsequence).
+    static func fuzzyMatch(_ a: String, _ b: String) -> Bool {
+        if a == b { return true }
+        let maxLen = max(a.count, b.count)
+        guard maxLen > 0 else { return true }
 
-        return text
-            .lowercased()
-            .split { $0.isWhitespace }
-            .compactMap { segment in
-                let filteredScalars = segment.unicodeScalars.filter { allowedSet.contains($0) }
-                let cleaned = String(String.UnicodeScalarView(filteredScalars))
-                return cleaned.isEmpty ? nil : cleaned
+        let lcsLen = longestCommonSubsequence(Array(a), Array(b))
+        return Double(lcsLen) / Double(maxLen) >= fuzzyMatchThreshold
+    }
+
+    private static func longestCommonSubsequence(_ a: [Character], _ b: [Character]) -> Int {
+        let n = a.count
+        let m = b.count
+        guard n > 0, m > 0 else { return 0 }
+
+        var prev = Array(repeating: 0, count: m + 1)
+        var curr = Array(repeating: 0, count: m + 1)
+
+        for i in 1...n {
+            for j in 1...m {
+                if a[i - 1] == b[j - 1] {
+                    curr[j] = prev[j - 1] + 1
+                } else {
+                    curr[j] = max(prev[j], curr[j - 1])
+                }
             }
+            prev = curr
+            curr = Array(repeating: 0, count: m + 1)
+        }
+
+        return prev[m]
+    }
+
+    /// Strip punctuation, lowercase, split into words.
+    private static func normalizedWords(from text: String) -> [String] {
+        text.lowercased()
+            .split { !$0.isLetter && !$0.isNumber && $0 != "'" }
+            .map { String($0) }
+            .filter { !$0.isEmpty }
     }
 }

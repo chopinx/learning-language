@@ -495,9 +495,9 @@ struct PracticeView: View {
     // MARK: - Comparison Popup
 
     private func comparisonPopup(result: DiffResult) -> some View {
-        let total = result.summary.correctCount + result.summary.missingCount + result.summary.wrongCount + result.summary.extraCount
+        let total = result.summary.correctCount + result.summary.missingCount
         let accuracy = total > 0 ? Int(Double(result.summary.correctCount) / Double(total) * 100) : 0
-        let isPerfect = result.summary.missingCount == 0 && result.summary.wrongCount == 0 && result.summary.extraCount == 0
+        let isPerfect = result.summary.missingCount == 0
 
         return ZStack {
             // Dimmed background
@@ -565,49 +565,20 @@ struct PracticeView: View {
         .animation(.spring(duration: 0.3), value: compareResult != nil)
     }
 
-    /// Build an inline attributed text showing the comparison like a teacher markup:
-    /// - Correct: plain text
-    /// - Missing: (word) in green
-    /// - Extra: ~~word~~ strikethrough in purple
-    /// - Wrong: ~~wrong~~ (right) strikethrough + parenthesis
+    /// Inline comparison: correct words plain, missing words in (parentheses).
     private func inlineComparisonText(result: DiffResult) -> some View {
         var parts: [Text] = []
 
         for token in result.tokens {
-            switch token.kind {
-            case .correct:
-                let word = token.userWord ?? token.sourceWord ?? ""
-                parts.append(Text(word + " ").foregroundColor(Color.themeTextPrimary))
-
-            case .missing:
-                let word = token.sourceWord ?? ""
+            let word = token.sourceWord ?? token.userWord ?? ""
+            if token.kind == .missing {
                 parts.append(
                     Text("(\(word)) ")
                         .foregroundColor(Color.diffMissingText)
                         .fontWeight(.semibold)
                 )
-
-            case .extra:
-                let word = token.userWord ?? ""
-                parts.append(
-                    Text(word + " ")
-                        .strikethrough(color: Color.diffExtraText)
-                        .foregroundColor(Color.diffExtraText)
-                )
-
-            case .wrong:
-                let wrong = token.userWord ?? ""
-                let right = token.sourceWord ?? ""
-                parts.append(
-                    Text(wrong)
-                        .strikethrough(color: Color.diffWrongText)
-                        .foregroundColor(Color.diffWrongText)
-                )
-                parts.append(
-                    Text(" (\(right)) ")
-                        .foregroundColor(Color.diffCorrectText)
-                        .fontWeight(.semibold)
-                )
+            } else {
+                parts.append(Text("\(word) ").foregroundColor(Color.themeTextPrimary))
             }
         }
 
