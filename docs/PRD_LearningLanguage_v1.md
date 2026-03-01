@@ -172,9 +172,11 @@ User assumptions:
 ## 9) UX Requirements by Screen
 ## Screen 1: Home / Sessions
 - Conditional language workspace switcher (visible only when active workspace count > 1).
-- Session cards with title, progress, last updated.
-- `New Session` CTA (supports `Import Audio` and `Create from Text`).
-- `Settings` entry.
+- Session list: each session is a tappable card/row. Tapping a session directly opens Practice (no separate "Start" button needed).
+- Session card shows: title, progress bar, completion percentage, last active time.
+- Resume card: prominent card for the most recent session at the top.
+- `+` floating action button for New Session.
+- Settings gear icon in top-right toolbar.
 
 ## Screen 2: Import + Transcribe
 - Two creation modes: `Import Audio` and `Create from Text`.
