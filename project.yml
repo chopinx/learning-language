@@ -1,0 +1,52 @@
+name: LearningLanguage
+options:
+  createIntermediateGroups: true
+  minimumXcodeGenVersion: 2.44.1
+settings:
+  base:
+    SWIFT_VERSION: 5.0
+    IPHONEOS_DEPLOYMENT_TARGET: 26.1
+    DEVELOPMENT_TEAM: R743AM4955
+    TARGETED_DEVICE_FAMILY: "1,2"
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 1.0
+    GENERATE_INFOPLIST_FILE: YES
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    INFOPLIST_KEY_NSMicrophoneUsageDescription: "Microphone access is needed to record your practice speech."
+targets:
+  LearningLanguage:
+    type: application
+    platform: iOS
+    sources:
+      - LearningLanguage
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: me.xiao.qinbang.LearningLanguage
+    scheme:
+      gatherCoverageData: true
+      testTargets:
+        - LearningLanguageTests
+        - LearningLanguageUITests
+
+  LearningLanguageTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - LearningLanguageTests
+    dependencies:
+      - target: LearningLanguage
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: me.xiao.qinbang.LearningLanguageTests
+
+  LearningLanguageUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - LearningLanguageUITests
+    dependencies:
+      - target: LearningLanguage
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: me.xiao.qinbang.LearningLanguageUITests

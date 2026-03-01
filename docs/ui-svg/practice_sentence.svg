@@ -1,0 +1,117 @@
+<svg width="390" height="844" viewBox="0 0 390 844" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="390" y2="844" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7FFFB"/>
+      <stop offset="1" stop-color="#F3FAFF"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="340" y2="220" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#FAFDFF"/>
+    </linearGradient>
+    <linearGradient id="record" x1="0" y1="0" x2="112" y2="112" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14435C"/>
+      <stop offset="1" stop-color="#0E7A7C"/>
+    </linearGradient>
+    <linearGradient id="primary" x1="0" y1="0" x2="150" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#134B63"/>
+      <stop offset="1" stop-color="#0F7378"/>
+    </linearGradient>
+    <filter id="drop" x="0" y="0" width="390" height="844" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0A2B42" flood-opacity="0.08"/>
+    </filter>
+    <style>
+      .h1 { font-family: 'Sora', 'Avenir Next', sans-serif; font-size: 22px; font-weight: 700; fill: #122331; }
+      .h2 { font-family: 'Sora', 'Avenir Next', sans-serif; font-size: 14px; font-weight: 700; fill: #193C4B; }
+      .b1 { font-family: 'Sora', 'Avenir Next', sans-serif; font-size: 12px; font-weight: 500; fill: #5A7584; }
+      .b2 { font-family: 'Sora', 'Avenir Next', sans-serif; font-size: 11px; font-weight: 700; fill: #2A5261; }
+      .w { font-family: 'Sora', 'Avenir Next', sans-serif; font-size: 12px; font-weight: 700; fill: #FFFFFF; }
+      .tok { font-family: 'Sora', 'Avenir Next', sans-serif; font-size: 11px; font-weight: 700; }
+    </style>
+  </defs>
+
+  <rect width="390" height="844" fill="url(#bg)"/>
+
+  <text x="24" y="64" class="h1">Practice</text>
+  <text x="24" y="86" class="b1">Workspace: Japanese</text>
+  <rect x="289" y="40" width="77" height="30" rx="15" fill="#E6F2F5"/>
+  <text x="312" y="59" class="b2">JP</text>
+
+  <text x="24" y="114" class="h2">Sentence 12 of 48</text>
+  <text x="24" y="134" class="b1">Drag the handle to jump</text>
+
+  <text x="24" y="155" class="b2">1</text>
+  <text x="348" y="155" class="b2">48</text>
+  <rect x="38" y="146" width="300" height="12" rx="6" fill="#D7E7ED"/>
+  <rect x="38" y="146" width="178" height="12" rx="6" fill="#1A6E82"/>
+  <circle cx="216" cy="152" r="14" fill="#FFFFFF" stroke="#1A6E82" stroke-width="3"/>
+
+  <rect x="24" y="170" width="74" height="30" rx="15" fill="#E6EFF3"/>
+  <text x="49" y="189" class="b2">Prev</text>
+  <rect x="292" y="170" width="74" height="30" rx="15" fill="url(#primary)"/>
+  <text x="318" y="189" class="w">Next</text>
+
+  <g filter="url(#drop)">
+    <rect x="22" y="214" width="346" height="178" rx="22" fill="url(#card)"/>
+  </g>
+  <text x="40" y="246" class="h2">Original transcript</text>
+
+  <rect x="248" y="228" width="102" height="30" rx="15" fill="#E6F3EA"/>
+  <circle cx="336" cy="243" r="11" fill="#1A7A56"/>
+  <text x="263" y="247" class="b2" fill="#216948">Show</text>
+
+  <rect x="40" y="264" width="310" height="74" rx="14" fill="#F4FAFC" stroke="#CEE1EB"/>
+  <text x="52" y="291" class="h2">Kyo wa densha de eki made ikimasu.</text>
+  <text x="52" y="312" class="b1">(Today I go to the station by train.)</text>
+
+  <rect x="40" y="350" width="154" height="30" rx="15" fill="#E8F2F6"/>
+  <path d="M58 358V372L70 365L58 358Z" fill="#1A6E82"/>
+  <text x="80" y="369" class="b2">Play sentence</text>
+
+  <g filter="url(#drop)">
+    <rect x="22" y="408" width="346" height="162" rx="22" fill="url(#card)"/>
+  </g>
+  <text x="40" y="440" class="h2">Your recording</text>
+
+  <circle cx="88" cy="494" r="52" fill="url(#record)"/>
+  <rect x="79" y="482" width="18" height="24" rx="8" fill="#FFFFFF"/>
+  <line x1="88" y1="506" x2="88" y2="518" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+  <rect x="81" y="506" width="14" height="7" rx="3.5" fill="#FFFFFF"/>
+
+  <text x="156" y="474" class="h2">Tap to record</text>
+  <text x="156" y="494" class="b1">Clip length: 00:07</text>
+  <rect x="156" y="507" width="190" height="10" rx="5" fill="#D7E7ED"/>
+  <rect x="156" y="507" width="120" height="10" rx="5" fill="#1A6E82"/>
+  <text x="156" y="536" class="b1">Waveform</text>
+  <path d="M156 548H162V541H168V555H174V544H180V552H186V539H192V557H198V546H204V553H210V542H216V551H222V547H228V553H234V543H240V558H246V545H252V552H258V542H264V551H270V547H276V553H282V542H288V551H294V545H300V552H306V546H312V551H318V547H324V553H330V544H336V551" stroke="#1A6E82" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <g filter="url(#drop)">
+    <rect x="22" y="586" width="346" height="196" rx="22" fill="url(#card)"/>
+  </g>
+  <text x="40" y="618" class="h2">Comparison</text>
+
+  <rect x="40" y="630" width="74" height="24" rx="12" fill="#FDEAE7"/>
+  <text x="52" y="646" class="b2" fill="#B74838">missing 1</text>
+  <rect x="122" y="630" width="64" height="24" rx="12" fill="#FFF1DE"/>
+  <text x="136" y="646" class="b2" fill="#AB6913">wrong 1</text>
+  <rect x="194" y="630" width="60" height="24" rx="12" fill="#ECEAFF"/>
+  <text x="207" y="646" class="b2" fill="#5E4CC7">extra 1</text>
+
+  <text x="40" y="674" class="b1">You said</text>
+  <rect x="40" y="684" width="36" height="24" rx="8" fill="#DFF3E6"/>
+  <text x="48" y="700" class="tok" fill="#1F6A43">kyo</text>
+  <rect x="80" y="684" width="30" height="24" rx="8" fill="#DFF3E6"/>
+  <text x="88" y="700" class="tok" fill="#1F6A43">wa</text>
+  <rect x="114" y="684" width="46" height="24" rx="8" fill="#FDEAE7"/>
+  <text x="122" y="700" class="tok" fill="#B74838">basu</text>
+  <rect x="164" y="684" width="30" height="24" rx="8" fill="#DFF3E6"/>
+  <text x="172" y="700" class="tok" fill="#1F6A43">de</text>
+  <rect x="198" y="684" width="28" height="24" rx="8" fill="#ECEAFF"/>
+  <text x="206" y="700" class="tok" fill="#5E4CC7">to</text>
+  <rect x="230" y="684" width="30" height="24" rx="8" fill="#DFF3E6"/>
+  <text x="236" y="700" class="tok" fill="#1F6A43">eki</text>
+  <rect x="264" y="684" width="40" height="24" rx="8" fill="#DFF3E6"/>
+  <text x="272" y="700" class="tok" fill="#1F6A43">made</text>
+
+  <rect x="218" y="734" width="132" height="34" rx="17" fill="url(#primary)"/>
+  <text x="238" y="756" class="w">Done and Next</text>
+</svg>

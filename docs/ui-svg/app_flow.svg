@@ -1,0 +1,71 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F6FBFF"/>
+      <stop offset="1" stop-color="#F3FBF6"/>
+    </linearGradient>
+    <linearGradient id="box" x1="0" y1="0" x2="250" y2="170" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F9FCFF"/>
+    </linearGradient>
+    <style>
+      .title { font-family: 'Sora', 'Avenir Next', sans-serif; font-size: 28px; font-weight: 700; fill: #142833; }
+      .h { font-family: 'Sora', 'Avenir Next', sans-serif; font-size: 18px; font-weight: 700; fill: #1C3C4A; }
+      .b { font-family: 'Sora', 'Avenir Next', sans-serif; font-size: 13px; font-weight: 500; fill: #5A7581; }
+      .l { font-family: 'Sora', 'Avenir Next', sans-serif; font-size: 13px; font-weight: 700; fill: #FFFFFF; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#2E5D70"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="760" fill="url(#bg)"/>
+  <text x="56" y="78" class="title">LearningLanguage V2 - Page Flow</text>
+
+  <rect x="72" y="160" width="250" height="170" rx="24" fill="url(#box)" stroke="#D6E4EB"/>
+  <text x="98" y="198" class="h">Home / Sessions</text>
+  <text x="98" y="223" class="b">- Workspace switcher</text>
+  <text x="98" y="244" class="b">- Session cards + resume</text>
+  <text x="98" y="265" class="b">- New session entry</text>
+  <rect x="98" y="284" width="140" height="28" rx="14" fill="#13586E"/>
+  <text x="126" y="303" class="l">New Session</text>
+
+  <rect x="468" y="160" width="250" height="170" rx="24" fill="url(#box)" stroke="#D6E4EB"/>
+  <text x="494" y="198" class="h">Create Session</text>
+  <text x="494" y="223" class="b">- Mode switch: import or text</text>
+  <text x="494" y="244" class="b">- Pipeline status by mode</text>
+  <text x="494" y="265" class="b">- Deepgram STT + speech gen</text>
+  <rect x="494" y="284" width="186" height="28" rx="14" fill="#1E678C"/>
+  <text x="518" y="303" class="l">Transcribe or Generate</text>
+
+  <rect x="864" y="160" width="250" height="170" rx="24" fill="url(#box)" stroke="#D6E4EB"/>
+  <text x="890" y="198" class="h">Practice Sentence</text>
+  <text x="890" y="223" class="b">- Draggable sentence slider</text>
+  <text x="890" y="244" class="b">- Show/hide source text</text>
+  <text x="890" y="265" class="b">- Record -> compare -> next</text>
+  <rect x="890" y="284" width="146" height="28" rx="14" fill="#0F6A76"/>
+  <text x="917" y="303" class="l">Done and Next</text>
+
+  <rect x="468" y="460" width="250" height="170" rx="24" fill="url(#box)" stroke="#D6E4EB"/>
+  <text x="494" y="498" class="h">Settings</text>
+  <text x="494" y="523" class="b">- API key save/validate/clear</text>
+  <text x="494" y="544" class="b">- Keychain security status</text>
+  <text x="494" y="565" class="b">- Workspace behavior prefs</text>
+  <rect x="494" y="584" width="132" height="28" rx="14" fill="#0F6A76"/>
+  <text x="525" y="603" class="l">Validate Key</text>
+
+  <rect x="72" y="460" width="250" height="170" rx="24" fill="#ECF7F3" stroke="#D4E8DF"/>
+  <text x="98" y="498" class="h">Persistence Layer</text>
+  <text x="98" y="523" class="b">- Workspace-isolated storage</text>
+  <text x="98" y="544" class="b">- Resume sentence index</text>
+  <text x="98" y="565" class="b">- Save attempts + diff</text>
+  <rect x="98" y="584" width="182" height="28" rx="14" fill="#2A6F5D"/>
+  <text x="126" y="603" class="l">Auto-save and Resume</text>
+
+  <path d="M322 245H458" stroke="#2E5D70" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M718 245H854" stroke="#2E5D70" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M990 330V440H718" stroke="#2E5D70" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M468 545H332V330" stroke="#2E5D70" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M322 545H458" stroke="#2E5D70" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M718 545H854V330" stroke="#2E5D70" stroke-width="3" marker-end="url(#arrow)"/>
+</svg>
