@@ -13,7 +13,7 @@ struct HomeView: View {
                     .ignoresSafeArea()
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 14) {
+                    VStack(alignment: .leading, spacing: 12) {
                         headerSection
                         workspaceChipsSection
 
@@ -69,33 +69,25 @@ struct HomeView: View {
                         }
                     }
                     .padding(.horizontal)
-                    .padding(.bottom, 70)
+                    .padding(.bottom, 8)
                 }
+                .scrollIndicators(.hidden)
             }
+            .ignoresSafeArea(edges: .top)
             .toolbar(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .bottom) {
                 Button {
                     showImportSheet = true
                 } label: {
                     Label("New Session", systemImage: "plus.circle.fill")
-                        .font(.headline.weight(.semibold))
-                        .frame(maxWidth: .infinity, minHeight: 48)
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity, minHeight: 44)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.white)
-                .background(
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(AppTheme.primaryButton)
-                )
+                .background(Capsule().fill(AppTheme.primaryButton))
                 .padding(.horizontal, 20)
-                .padding(.bottom, 4)
-                .background(
-                    LinearGradient(
-                        colors: [Color.clear, Color.white.opacity(0.78)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
+                .padding(.vertical, 6)
             }
             .navigationDestination(for: UUID.self) { sessionID in
                 PracticeView(viewModel: viewModel, sessionID: sessionID)
@@ -115,34 +107,16 @@ struct HomeView: View {
     // MARK: - Header with blob decoration
 
     private var headerSection: some View {
-        ZStack(alignment: .topLeading) {
-            Ellipse()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 0.851, green: 0.933, blue: 1.0).opacity(0.65),
-                            Color(red: 0.847, green: 0.969, blue: 0.910).opacity(0.2)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: 440, height: 280)
-                .offset(x: -25, y: -80)
-                .allowsHitTesting(false)
+        VStack(alignment: .leading, spacing: 4) {
+            Text("LearningLanguage")
+                .font(.title2.weight(.bold))
+                .foregroundStyle(AppColors.textPrimary)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text("LearningLanguage")
-                    .font(.title.weight(.bold))
-                    .foregroundStyle(AppColors.textPrimary)
-
-                Text("Shadowing workspace dashboard")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(AppColors.textSecondary)
-            }
-            .padding(.top, 6)
+            Text("Shadowing workspace dashboard")
+                .font(.caption)
+                .foregroundStyle(AppColors.textSecondary)
         }
-        .clipped()
+        .padding(.top, 60) // clear Dynamic Island + status bar
     }
 
     // MARK: - Workspace Chips
