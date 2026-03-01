@@ -43,7 +43,7 @@ struct ImportTranscribeView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                AppTheme.screenBackground
+                Color(.systemGroupedBackground)
                     .ignoresSafeArea()
 
                 ScrollView {
@@ -84,9 +84,8 @@ struct ImportTranscribeView: View {
                                 .appCard()
                         }
                     }
-                    .padding(.horizontal)
-                    .padding(.top, 4)
-                    .padding(.bottom, 70)
+                    .padding()
+                    .padding(.bottom, 8)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -107,22 +106,16 @@ struct ImportTranscribeView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity, minHeight: 56)
                         .background(
-                            Capsule()
+                            RoundedRectangle(cornerRadius: 12)
                                 .fill(AppTheme.primaryButton)
                         )
                 }
                 .buttonStyle(.plain)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 10)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
                 .disabled(!canCreateSession)
                 .opacity(canCreateSession ? 1 : 0.5)
-                .background(
-                    LinearGradient(
-                        colors: [Color.clear, Color.white.opacity(0.8)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
+                .background(Color(.systemGroupedBackground))
                 .accessibilityIdentifier("createSessionButton")
             }
             .fileImporter(

@@ -39,7 +39,7 @@ struct OnboardingGuideView: View {
         .tabViewStyle(.page(indexDisplayMode: .always))
         .accessibilityIdentifier("onboardingPager")
         .background {
-            AppTheme.screenBackground.ignoresSafeArea()
+            Color(.systemGroupedBackground).ignoresSafeArea()
         }
         .safeAreaInset(edge: .top) {
             HStack {
@@ -51,8 +51,7 @@ struct OnboardingGuideView: View {
                 .foregroundStyle(AppColors.textSecondary)
                 .accessibilityIdentifier("onboardingSkipButton")
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 10)
+            .padding()
             .background(.clear)
         }
         .safeAreaInset(edge: .bottom) {
@@ -69,14 +68,14 @@ struct OnboardingGuideView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
                     .background(
-                        Capsule()
+                        RoundedRectangle(cornerRadius: 12)
                             .fill(AppTheme.primaryButton)
                     )
             }
             .buttonStyle(.plain)
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
-            .background(.ultraThinMaterial)
+            .background(Color(.systemBackground))
             .accessibilityIdentifier("onboardingContinueButton")
         }
     }
@@ -92,7 +91,7 @@ struct OnboardingGuideView: View {
 
             VStack(spacing: 14) {
                 Text(page.title)
-                    .font(.largeTitle.weight(.bold))
+                    .font(.title.weight(.bold))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppColors.textPrimary)
 
@@ -105,12 +104,11 @@ struct OnboardingGuideView: View {
 
             Spacer()
         }
-        .padding(.horizontal, 28)
-        .padding(.vertical, 26)
+        .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .background(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(.ultraThinMaterial)
+                .fill(Color(.systemBackground))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 24)
         )

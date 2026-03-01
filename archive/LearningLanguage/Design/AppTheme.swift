@@ -1,5 +1,23 @@
 import SwiftUI
 
+// MARK: - Color(hex:) Initializer
+
+extension Color {
+    init?(hex: String) {
+        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
+
+        var rgb: UInt64 = 0
+        guard Scanner(string: hexSanitized).scanHexInt64(&rgb) else { return nil }
+
+        let r = Double((rgb & 0xFF0000) >> 16) / 255.0
+        let g = Double((rgb & 0x00FF00) >> 8) / 255.0
+        let b = Double(rgb & 0x0000FF) / 255.0
+
+        self.init(red: r, green: g, blue: b)
+    }
+}
+
 // MARK: - Color Tokens (derived from V2 SVG mockups)
 
 enum AppColors {
@@ -58,14 +76,7 @@ enum AppColors {
 // MARK: - Theme
 
 enum AppTheme {
-    static let screenBackground = LinearGradient(
-        colors: [
-            Color(red: 0.965, green: 0.984, blue: 1.0),   // #F6FBFF
-            Color(red: 0.949, green: 0.984, blue: 0.961)   // #F2FBF5
-        ],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
+    static let screenBackground = Color(.systemGroupedBackground)
 
     static let cardBackground = LinearGradient(
         colors: [
@@ -94,13 +105,10 @@ enum AppTheme {
 private struct AppCardModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .padding(12)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(AppTheme.cardBackground)
-                    .shadow(color: Color(red: 0.04, green: 0.17, blue: 0.26).opacity(0.06), radius: 8, x: 0, y: 4)
-            )
+            .padding()
+            .background(Color(.systemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
     }
 }
 
@@ -267,10 +275,10 @@ struct PillButton: View {
                     .font(.caption.weight(.bold))
             }
             .foregroundStyle(style == .primary ? .white : AppColors.chipInactiveText)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 9)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
             .background(
-                Capsule()
+                RoundedRectangle(cornerRadius: 12)
                     .fill(style == .primary ? AnyShapeStyle(AppTheme.primaryButton) : AnyShapeStyle(AppColors.chipInactiveBg))
             )
         }
