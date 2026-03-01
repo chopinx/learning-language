@@ -39,7 +39,9 @@ final class PracticeAudioController: NSObject, ObservableObject {
             if let startSec, let endSec, endSec > startSec {
                 let duration = endSec - startSec
                 playbackStopTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false) { [weak self] _ in
-                    self?.stopPlayback()
+                    Task { @MainActor in
+                        self?.stopPlayback()
+                    }
                 }
             }
         } catch {
@@ -155,8 +157,14 @@ final class PracticeAudioController: NSObject, ObservableObject {
 
     private func requestMicrophonePermission() async -> Bool {
         await withCheckedContinuation { continuation in
-            AVAudioSession.sharedInstance().requestRecordPermission { granted in
-                continuation.resume(returning: granted)
+            if #available(iOS 17.0, *) {
+                AVAudioApplication.requestRecordPermission { granted in
+                    continuation.resume(returning: granted)
+                }
+            } else {
+                AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                    continuation.resume(returning: granted)
+                }
             }
         }
     }
@@ -169,7 +177,7 @@ final class PracticeAudioController: NSObject, ObservableObject {
 
     private func configureAudioSessionForRecording() throws {
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
+        try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothHFP])
         try session.setActive(true)
     }
 }
