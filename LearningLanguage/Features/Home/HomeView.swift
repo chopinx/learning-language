@@ -23,7 +23,7 @@ struct HomeView: View {
             .listStyle(.plain)
             .listRowSpacing(4)
             .scrollContentBackground(.hidden)
-            .background(Color(.systemBackground).ignoresSafeArea())
+            .background(Color(.systemGroupedBackground))
             .navigationTitle("LearningLanguage")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

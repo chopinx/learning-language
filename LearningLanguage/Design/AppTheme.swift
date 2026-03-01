@@ -156,33 +156,6 @@ struct DiffSummaryChips: View {
     }
 }
 
-// MARK: - Styled Progress Bar
-
-struct StyledProgressBar: View {
-    let progress: Double
-    let completed: Int
-    let total: Int
-
-    var body: some View {
-        VStack(alignment: .trailing, spacing: 4) {
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(Color(.systemGray5))
-                        .frame(height: 8)
-                    Capsule()
-                        .fill(Color.themePrimary)
-                        .frame(width: max(0, geo.size.width * progress), height: 8)
-                }
-            }
-            .frame(height: 8)
-
-            Text("\(completed)/\(total)")
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(Color.themeTextTertiary)
-        }
-    }
-}
 
 // MARK: - Relative Time Formatter
 
