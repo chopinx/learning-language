@@ -5,6 +5,7 @@ struct HomeView: View {
 
     @State private var navigationPath: [UUID] = []
     @State private var showImportSheet = false
+    @State private var showSettings = false
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -19,13 +20,31 @@ struct HomeView: View {
             }
             .listStyle(.plain)
             .navigationTitle("LearningLanguage")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showSettings = true } label: {
+                        Image(systemName: "gearshape.fill")
+                    }
+                    .tint(Color.themeTextSecondary)
+                }
+            }
             .safeAreaInset(edge: .bottom) {
-                newSessionButton
+                Button { showImportSheet = true } label: {
+                    Label("New Session", systemImage: "plus.circle.fill")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.white)
+                .background(Color.themePrimary)
             }
             .navigationDestination(for: UUID.self) { sessionID in
                 PracticeView(viewModel: viewModel, sessionID: sessionID)
                     .onAppear { viewModel.setLastOpenedSession(sessionID) }
             }
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView(viewModel: viewModel, apiKeyManager: viewModel.apiKeyManager)
         }
         .fullScreenCover(isPresented: $showImportSheet) {
             ImportTranscribeView(viewModel: viewModel) { newSessionID in
@@ -119,13 +138,11 @@ struct HomeView: View {
         } label: {
             Label("New Session", systemImage: "plus.circle.fill")
                 .font(.subheadline.weight(.semibold))
-                .frame(maxWidth: .infinity, minHeight: 44)
+                .frame(maxWidth: .infinity, minHeight: 50)
         }
         .buttonStyle(.plain)
         .foregroundStyle(.white)
-        .background(Color.themePrimaryGradient, in: Capsule())
-        .padding(.horizontal)
-        .padding(.vertical, 6)
+        .background(Color.themePrimary)
     }
 
     // MARK: - Helpers
