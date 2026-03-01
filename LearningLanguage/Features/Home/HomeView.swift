@@ -19,7 +19,11 @@ struct HomeView: View {
                 }
             }
             .listStyle(.plain)
+            .listRowSpacing(4)
+            .scrollContentBackground(.hidden)
+            .background(Color(.systemBackground).ignoresSafeArea())
             .navigationTitle("LearningLanguage")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showSettings = true } label: {
@@ -30,13 +34,18 @@ struct HomeView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 Button { showImportSheet = true } label: {
-                    Label("New Session", systemImage: "plus.circle.fill")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 50)
+                    VStack(spacing: 0) {
+                        Label("New Session", systemImage: "plus.circle.fill")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                        // Extra padding fills the home indicator area
+                        Spacer().frame(height: 20)
+                    }
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.white)
                 .background(Color.themePrimary)
+                .ignoresSafeArea(edges: .bottom)
             }
             .navigationDestination(for: UUID.self) { sessionID in
                 PracticeView(viewModel: viewModel, sessionID: sessionID)

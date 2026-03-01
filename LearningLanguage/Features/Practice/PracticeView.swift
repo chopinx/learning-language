@@ -45,7 +45,7 @@ struct PracticeView: View {
             }
         }
         .navigationTitle("Practice")
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 if let ws = workspace {
