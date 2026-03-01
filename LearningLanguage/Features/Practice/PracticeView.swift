@@ -39,7 +39,7 @@ struct PracticeView: View {
                         .ignoresSafeArea()
 
                     ScrollView {
-                        VStack(alignment: .leading, spacing: 18) {
+                        VStack(alignment: .leading, spacing: 16) {
                             headerSection(session: session)
                             sentenceNavigationSection(session: session)
                             originalTranscriptCard
@@ -81,10 +81,10 @@ struct PracticeView: View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Practice")
-                    .font(.system(size: 22, weight: .bold))
+                    .font(.title2.weight(.bold))
                     .foregroundStyle(AppColors.textPrimary)
                 Text("Workspace: \(workspaceName(for: session))")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.caption)
                     .foregroundStyle(AppColors.textSecondary)
             }
 
@@ -92,10 +92,10 @@ struct PracticeView: View {
 
             if let ws = workspace {
                 Text(ws.shortCode)
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.caption2.weight(.bold))
                     .foregroundStyle(AppColors.chipInactiveText)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 7)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 6)
                     .background(AppColors.chipInactiveBg, in: Capsule())
             }
         }
@@ -107,11 +107,11 @@ struct PracticeView: View {
         VStack(alignment: .leading, spacing: 10) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Sentence \(sentenceIndex + 1) of \(session.sentences.count)")
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.subheadline.weight(.bold))
                     .foregroundStyle(AppColors.textHeading)
                     .accessibilityIdentifier("sentenceHeader")
                 Text("Drag the handle to jump")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.caption)
                     .foregroundStyle(AppColors.textSecondary)
             }
 
@@ -136,7 +136,7 @@ struct PracticeView: View {
     private func customSlider(session: LearningSession) -> some View {
         HStack(spacing: 8) {
             Text("1")
-                .font(.system(size: 11, weight: .bold))
+                .font(.caption2.weight(.bold))
                 .foregroundStyle(AppColors.chipInactiveText)
 
             GeometryReader { geo in
@@ -148,20 +148,20 @@ struct PracticeView: View {
                 ZStack(alignment: .leading) {
                     Capsule()
                         .fill(AppColors.progressTrack)
-                        .frame(height: 12)
+                        .frame(height: 10)
 
                     Capsule()
                         .fill(AppColors.tealAccent)
-                        .frame(width: max(0, thumbX), height: 12)
+                        .frame(width: max(0, thumbX), height: 10)
 
                     Circle()
                         .fill(Color.white)
-                        .frame(width: 28, height: 28)
+                        .frame(width: 26, height: 26)
                         .overlay(
                             Circle()
                                 .stroke(AppColors.tealAccent, lineWidth: 3)
                         )
-                        .offset(x: thumbX - 14)
+                        .offset(x: thumbX - 13)
                         .gesture(
                             DragGesture(minimumDistance: 0)
                                 .onChanged { value in
@@ -174,13 +174,13 @@ struct PracticeView: View {
                                 }
                         )
                 }
-                .frame(height: 28)
+                .frame(height: 26)
             }
-            .frame(height: 28)
+            .frame(height: 26)
             .accessibilityIdentifier("sentenceSlider")
 
             Text("\(session.sentences.count)")
-                .font(.system(size: 11, weight: .bold))
+                .font(.caption2.weight(.bold))
                 .foregroundStyle(AppColors.chipInactiveText)
         }
     }
@@ -191,7 +191,7 @@ struct PracticeView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("Original transcript")
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.subheadline.weight(.bold))
                     .foregroundStyle(AppColors.textHeading)
 
                 Spacer()
@@ -200,22 +200,20 @@ struct PracticeView: View {
             }
 
             if showOriginal {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(currentSentence?.text ?? "")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(AppColors.textHeading)
-                        .accessibilityIdentifier("originalSentenceText")
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(12)
-                .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(AppColors.inputBg)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .stroke(AppColors.inputBorder, lineWidth: 1)
-                        )
-                )
+                Text(currentSentence?.text ?? "")
+                    .font(.body)
+                    .foregroundStyle(AppColors.textHeading)
+                    .accessibilityIdentifier("originalSentenceText")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(AppColors.inputBg)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .stroke(AppColors.inputBorder, lineWidth: 1)
+                            )
+                    )
             } else {
                 Text("Original hidden")
                     .font(.body)
@@ -233,22 +231,19 @@ struct PracticeView: View {
             showOriginal.toggle()
             viewModel.setShowOriginalByDefault(showOriginal)
         } label: {
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 Text(showOriginal ? "Show" : "Hide")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(Color(red: 0.129, green: 0.412, blue: 0.282))
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(AppColors.chipGreenText)
 
                 Circle()
-                    .fill(Color(red: 0.102, green: 0.478, blue: 0.337))
-                    .frame(width: 22, height: 22)
+                    .fill(AppColors.validSuccessIcon)
+                    .frame(width: 20, height: 20)
             }
-            .padding(.leading, 14)
+            .padding(.leading, 12)
             .padding(.trailing, 4)
             .padding(.vertical, 4)
-            .background(
-                Capsule()
-                    .fill(Color(red: 0.902, green: 0.953, blue: 0.918))
-            )
+            .background(AppColors.chipGreenBg, in: Capsule())
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("showOriginalToggle")
@@ -258,27 +253,17 @@ struct PracticeView: View {
         Button {
             togglePlayback()
         } label: {
-            HStack(spacing: 8) {
-                if audioController.isPlaying {
-                    Image(systemName: "stop.fill")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(AppColors.tealAccent)
-                } else {
-                    // Play triangle
-                    Image(systemName: "play.fill")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(AppColors.tealAccent)
-                }
+            HStack(spacing: 6) {
+                Image(systemName: audioController.isPlaying ? "stop.fill" : "play.fill")
+                    .font(.caption2)
+                    .foregroundStyle(AppColors.tealAccent)
                 Text(audioController.isPlaying ? "Stop playback" : "Play sentence")
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.caption.weight(.bold))
                     .foregroundStyle(AppColors.chipInactiveText)
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 14)
             .padding(.vertical, 8)
-            .background(
-                Capsule()
-                    .fill(AppColors.chipInactiveBg)
-            )
+            .background(AppColors.chipInactiveBg, in: Capsule())
         }
         .buttonStyle(.plain)
     }
@@ -288,25 +273,26 @@ struct PracticeView: View {
     private var recordingCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Your recording")
-                .font(.system(size: 14, weight: .bold))
+                .font(.subheadline.weight(.bold))
                 .foregroundStyle(AppColors.textHeading)
 
-            HStack(alignment: .top, spacing: 16) {
+            HStack(alignment: .center, spacing: 16) {
                 micButton
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(audioController.isRecording ? "Recording..." : "Tap to record")
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.subheadline.weight(.bold))
                         .foregroundStyle(AppColors.textHeading)
 
                     Text("Clip length: \(formattedDuration)")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.caption)
                         .foregroundStyle(AppColors.textSecondary)
 
                     if audioController.isRecording || !audioController.audioLevels.isEmpty {
                         waveformView
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
 
             if audioController.latestRecordingURL != nil && !audioController.isRecording {
@@ -334,26 +320,18 @@ struct PracticeView: View {
             ZStack {
                 Circle()
                     .fill(AppTheme.recordButton)
-                    .frame(width: 104, height: 104)
 
                 if audioController.isRecording {
                     RoundedRectangle(cornerRadius: 4)
                         .fill(Color.white)
-                        .frame(width: 24, height: 24)
+                        .frame(width: 22, height: 22)
                 } else {
-                    VStack(spacing: 0) {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.white)
-                            .frame(width: 18, height: 24)
-                        Rectangle()
-                            .fill(Color.white)
-                            .frame(width: 3, height: 8)
-                        Capsule()
-                            .fill(Color.white)
-                            .frame(width: 14, height: 7)
-                    }
+                    Image(systemName: "mic.fill")
+                        .font(.title2)
+                        .foregroundStyle(.white)
                 }
             }
+            .frame(width: 80, height: 80)
         }
         .buttonStyle(.plain)
     }
@@ -382,13 +360,13 @@ struct PracticeView: View {
     private func comparisonCard(result: DiffResult) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Comparison")
-                .font(.system(size: 14, weight: .bold))
+                .font(.subheadline.weight(.bold))
                 .foregroundStyle(AppColors.textHeading)
 
             DiffSummaryChips(result: result)
 
             Text("You said")
-                .font(.system(size: 12, weight: .medium))
+                .font(.caption)
                 .foregroundStyle(AppColors.textSecondary)
 
             tokenFlowLayout(tokens: result.tokens)

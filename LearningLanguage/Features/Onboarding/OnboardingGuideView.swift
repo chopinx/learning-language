@@ -86,7 +86,7 @@ struct OnboardingGuideView: View {
             Spacer(minLength: 30)
 
             Image(systemName: page.systemImage)
-                .font(.system(size: 78))
+                .font(.system(size: 72, weight: .light))
                 .foregroundStyle(AppColors.primaryTeal)
                 .symbolEffect(.bounce, value: selectedPage)
 
