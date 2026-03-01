@@ -291,9 +291,9 @@ struct PracticeView: View {
                 .foregroundStyle(Color.themeTextPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            // Waveform + duration while recording
-            if audioController.isRecording {
-                VStack(spacing: 8) {
+            // Fixed-height area above button for recording info
+            VStack(spacing: 8) {
+                if audioController.isRecording || isProcessing {
                     Text(formattedDuration)
                         .font(.title.weight(.bold).monospacedDigit())
                         .foregroundStyle(Color.themeTextPrimary)
@@ -301,50 +301,44 @@ struct PracticeView: View {
                     if !audioController.audioLevels.isEmpty {
                         waveformView
                     }
+
+                    if isCancelling {
+                        Text("Release to cancel")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Color.themeError)
+                    } else {
+                        HStack(spacing: 6) {
+                            Image(systemName: "chevron.up")
+                                .font(.caption.weight(.bold))
+                            Text("Swipe up to cancel")
+                                .font(.caption.weight(.medium))
+                        }
+                        .foregroundStyle(Color.themeTextSecondary)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 6)
+                        .background(Color(.systemGray6), in: Capsule())
+                    }
                 }
             }
+            .frame(minHeight: 0)
+            .animation(.easeInOut(duration: 0.15), value: audioController.isRecording)
 
-            // Swipe up hint ABOVE the button (visible during recording)
-            if audioController.isRecording && !isCancelling {
-                HStack(spacing: 6) {
-                    Image(systemName: "chevron.up")
-                        .font(.caption.weight(.bold))
-                    Text("Swipe up to cancel")
-                        .font(.caption.weight(.medium))
-                }
-                .foregroundStyle(Color.themeTextSecondary)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 6)
-                .background(Color(.systemGray6), in: Capsule())
-                .transition(.opacity)
-            }
-
-            if isCancelling {
-                Text("Release to cancel")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(Color.themeError)
-            }
-
-            // The hold-to-record button (stays in place)
+            // Button — always at the same position in the card
             holdToRecordButton
                 .accessibilityIdentifier("recordButton")
 
             // Caption below button
-            if isProcessing {
-                Text("Transcribing...")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(Color.themeTextSecondary)
-            } else if !audioController.isRecording && !isCancelling {
-                Text(audioController.latestRecordingURL != nil ? "Release to compare" : "Hold to record")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(Color.themeTextSecondary)
-            } else if audioController.isRecording && !isCancelling {
-                Text("Release to compare")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(Color.themeTextSecondary)
-            }
+            Text(bottomCaption)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Color.themeTextSecondary)
         }
         .appCard()
+    }
+
+    private var bottomCaption: String {
+        if isProcessing { return "Transcribing..." }
+        if audioController.isRecording && !isCancelling { return "Release to compare" }
+        return "Hold to record"
     }
 
     private var holdToRecordButton: some View {
