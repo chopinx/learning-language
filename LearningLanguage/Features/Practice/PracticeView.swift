@@ -285,7 +285,7 @@ struct PracticeView: View {
     // MARK: - Hold-to-Record Section
 
     private var holdToRecordSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             Text("Your recording")
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(Color.themeTextPrimary)
@@ -304,12 +304,45 @@ struct PracticeView: View {
                 }
             }
 
-            // The hold-to-record button
+            // Swipe up hint ABOVE the button (visible during recording)
+            if audioController.isRecording && !isCancelling {
+                HStack(spacing: 6) {
+                    Image(systemName: "chevron.up")
+                        .font(.caption.weight(.bold))
+                    Text("Swipe up to cancel")
+                        .font(.caption.weight(.medium))
+                }
+                .foregroundStyle(Color.themeTextSecondary)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
+                .background(Color(.systemGray6), in: Capsule())
+                .transition(.opacity)
+            }
+
+            if isCancelling {
+                Text("Release to cancel")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.themeError)
+            }
+
+            // The hold-to-record button (stays in place)
             holdToRecordButton
                 .accessibilityIdentifier("recordButton")
 
             // Caption below button
-            recordButtonCaption
+            if isProcessing {
+                Text("Transcribing...")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.themeTextSecondary)
+            } else if !audioController.isRecording && !isCancelling {
+                Text(audioController.latestRecordingURL != nil ? "Release to compare" : "Hold to record")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.themeTextSecondary)
+            } else if audioController.isRecording && !isCancelling {
+                Text("Release to compare")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.themeTextSecondary)
+            }
         }
         .appCard()
     }
@@ -333,7 +366,6 @@ struct PracticeView: View {
             // Icon overlay
             buttonIcon
         }
-        .offset(y: audioController.isRecording ? dragOffset : 0)
         .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { value in
@@ -379,38 +411,7 @@ struct PracticeView: View {
         }
     }
 
-    @ViewBuilder
-    private var recordButtonCaption: some View {
-        if isProcessing {
-            Text("Transcribing...")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(Color.themeTextSecondary)
-        } else if isCancelling {
-            Text("Release to cancel")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(Color.themeError)
-        } else if audioController.isRecording {
-            VStack(spacing: 8) {
-                Text("Release to compare")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(Color.themeTextSecondary)
-                HStack(spacing: 6) {
-                    Image(systemName: "chevron.up")
-                        .font(.caption.weight(.bold))
-                    Text("Swipe up to cancel")
-                        .font(.caption.weight(.medium))
-                }
-                .foregroundStyle(Color.themeTextSecondary)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 6)
-                .background(Color(.systemGray6), in: Capsule())
-            }
-        } else {
-            Text("Hold to record")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(Color.themeTextSecondary)
-        }
-    }
+    // recordButtonCaption is now inlined in holdToRecordSection
 
     private var waveformView: some View {
         HStack(alignment: .center, spacing: 2) {
