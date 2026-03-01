@@ -19,39 +19,55 @@ extension Color {
 }
 
 // MARK: - App Color Theme
+// Fresh, modern palette matching ProjectX design language
 
 extension Color {
-    // Primary - Deep teal (language learning / focus)
-    static let themePrimary = Color(hex: "0F6A74")!
-    static let themePrimaryDark = Color(hex: "133D5A")!
+    // MARK: - Primary Colors
+    /// Main brand color - Fresh emerald green
+    static let themePrimary = Color(hex: "10B981")!
+    /// Darker variant for contrast
+    static let themePrimaryDark = Color(hex: "059669")!
 
-    // Semantic
+    // MARK: - Secondary Colors
+    /// Warm accent - Coral orange
+    static let themeSecondary = Color(hex: "F97316")!
+    /// Lighter variant
+    static let themeSecondaryLight = Color(hex: "FB923C")!
+
+    // MARK: - Semantic Colors
+    /// Success - Bright green
     static let themeSuccess = Color(hex: "22C55E")!
+    /// Warning - Amber
     static let themeWarning = Color(hex: "F59E0B")!
+    /// Error - Rose red
     static let themeError = Color(hex: "EF4444")!
+    /// Info - Sky blue
+    static let themeInfo = Color(hex: "0EA5E9")!
 
-    // Neutrals
+    // MARK: - Neutral Colors
+    static let themeBackground = Color(hex: "F8FAFC")!
+    static let themeCardBackground = Color(hex: "FFFFFF")!
+    static let themeBorder = Color(hex: "E2E8F0")!
     static let themeTextPrimary = Color(hex: "1E293B")!
     static let themeTextSecondary = Color(hex: "64748B")!
     static let themeTextTertiary = Color(hex: "94A3B8")!
-    static let themeBorder = Color(hex: "E2E8F0")!
 
-    // Diff token colors
-    static let diffCorrectBg = Color(hex: "DFF3E6")!
-    static let diffCorrectText = Color(hex: "1F6A43")!
-    static let diffMissingBg = Color(hex: "FDEAE7")!
-    static let diffMissingText = Color(hex: "B74838")!
-    static let diffWrongBg = Color(hex: "FFF1DE")!
-    static let diffWrongText = Color(hex: "AB6913")!
-    static let diffExtraBg = Color(hex: "ECEAFF")!
-    static let diffExtraText = Color(hex: "5E4CC7")!
+    // MARK: - Diff Token Colors
+    static let diffCorrectBg = Color(hex: "D1FAE5")!
+    static let diffCorrectText = Color(hex: "065F46")!
+    static let diffMissingBg = Color(hex: "FEE2E2")!
+    static let diffMissingText = Color(hex: "991B1B")!
+    static let diffWrongBg = Color(hex: "FEF3C7")!
+    static let diffWrongText = Color(hex: "92400E")!
+    static let diffExtraBg = Color(hex: "EDE9FE")!
+    static let diffExtraText = Color(hex: "5B21B6")!
 
-    // Gradient
+    // MARK: - Gradient
     static var themePrimaryGradient: LinearGradient {
         LinearGradient(
-            colors: [.themePrimaryDark, .themePrimary],
-            startPoint: .leading,
-            endPoint: .trailing
+            colors: [themePrimary, Color(hex: "14B8A6")!],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
         )
     }
 }

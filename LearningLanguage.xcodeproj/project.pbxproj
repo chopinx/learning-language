@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -57,16 +57,16 @@
 		1125EA289C494E26B83B97E6 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		175CCB2CB32B5B2E22BF8607 /* DeepgramClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramClient.swift; sourceTree = "<group>"; };
 		2F5C220F41DBF7B8D9F9C5E3 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
-		34F725C3C36B7E986C7FABAD /* LearningLanguage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LearningLanguage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		34F725C3C36B7E986C7FABAD /* LearningLanguage.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LearningLanguage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3914104CE85AF826FBCF77DA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		4536D28D0D4AA49B26CD938C /* LearningLanguageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LearningLanguageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4536D28D0D4AA49B26CD938C /* LearningLanguageTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LearningLanguageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A3BE0EE253030605AB83150 /* SentenceSegmenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentenceSegmenter.swift; sourceTree = "<group>"; };
 		4FE7BA86ECF25B4F623222C8 /* WorkspaceLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceLanguage.swift; sourceTree = "<group>"; };
 		53A44AE9F7AEE288E877537F /* LearningSessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningSessionStore.swift; sourceTree = "<group>"; };
 		54CFC4C08189BA5E2161A7B7 /* LearningLanguageUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningLanguageUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		56A8E22E18444B4648B2443C /* LearningLanguageApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningLanguageApp.swift; sourceTree = "<group>"; };
 		5D18457593C1B15948276469 /* ImportTranscribeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportTranscribeView.swift; sourceTree = "<group>"; };
-		5D8FBE574037161DE5003162 /* LearningLanguageUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LearningLanguageUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5D8FBE574037161DE5003162 /* LearningLanguageUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LearningLanguageUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		607168F901C3A8E2C990395B /* UITestBootstrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestBootstrapper.swift; sourceTree = "<group>"; };
 		799CB504BE41DB8479559B81 /* OnboardingGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingGuideView.swift; sourceTree = "<group>"; };
 		995EA988C8607EE27861B1D3 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -336,7 +336,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					17A49EA7FBF073F38ACA96B3 = {
 						DevelopmentTeam = R743AM4955;
@@ -360,6 +360,7 @@
 			);
 			mainGroup = 0F2FC7B2AD2CDA03AC1CBF81;
 			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -533,7 +534,6 @@
 				DEVELOPMENT_TEAM = R743AM4955;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -557,7 +557,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -606,7 +605,6 @@
 				DEVELOPMENT_TEAM = R743AM4955;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -623,7 +621,6 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
