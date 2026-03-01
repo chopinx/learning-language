@@ -92,23 +92,25 @@ struct PracticeView: View {
                 .foregroundStyle(Color.themeTextPrimary)
                 .accessibilityIdentifier("sentenceHeader")
 
-            Slider(
-                value: $sliderValue,
-                in: sliderRange,
-                step: 1
-            ) {
-                Text("Sentence")
-            } minimumValueLabel: {
-                Text("1").font(.caption2.weight(.semibold)).foregroundStyle(Color.themeTextSecondary)
-            } maximumValueLabel: {
-                Text("\(session.sentences.count)").font(.caption2.weight(.semibold)).foregroundStyle(Color.themeTextSecondary)
-            } onEditingChanged: { editing in
-                if !editing {
-                    jumpToSentence(Int(sliderValue))
+            if session.sentences.count > 1 {
+                Slider(
+                    value: $sliderValue,
+                    in: 0...Double(session.sentences.count - 1),
+                    step: 1
+                ) {
+                    Text("Sentence")
+                } minimumValueLabel: {
+                    Text("1").font(.caption2.weight(.semibold)).foregroundStyle(Color.themeTextSecondary)
+                } maximumValueLabel: {
+                    Text("\(session.sentences.count)").font(.caption2.weight(.semibold)).foregroundStyle(Color.themeTextSecondary)
+                } onEditingChanged: { editing in
+                    if !editing {
+                        jumpToSentence(Int(sliderValue))
+                    }
                 }
+                .tint(Color.themePrimary)
+                .accessibilityIdentifier("sentenceSlider")
             }
-            .tint(Color.themePrimary)
-            .accessibilityIdentifier("sentenceSlider")
         }
     }
 
