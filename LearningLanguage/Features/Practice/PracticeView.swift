@@ -14,6 +14,22 @@ struct PracticeView: View {
     @State private var isTranscribingRecording = false
     @State private var actionErrorMessage: String?
 
+    /// Tracks which step the user is on in the practice flow.
+    private enum PracticeStep: Int, CaseIterable {
+        case listen = 0
+        case record = 1
+        case transcribe = 2
+        case compare = 3
+    }
+
+    private var currentStep: PracticeStep {
+        if compareResult != nil { return .compare }
+        if isTranscribingRecording { return .transcribe }
+        if audioController.latestRecordingURL != nil && !audioController.isRecording { return .transcribe }
+        if audioController.isRecording { return .record }
+        return .listen
+    }
+
     private var session: LearningSession? {
         viewModel.session(for: sessionID)
     }
@@ -64,8 +80,10 @@ struct PracticeView: View {
     private func practiceContent(session: LearningSession) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                sessionProgressBar(session: session)
                 sentenceHeaderSection(session: session)
                 sentenceNavigationButtons(session: session)
+                stepIndicator
                 originalTranscriptCard
                 recordingCard
                 if let result = compareResult {
@@ -81,6 +99,77 @@ struct PracticeView: View {
                 doneAndNextBar
             }
         }
+    }
+
+    // MARK: - Session Progress Bar
+
+    private func sessionProgressBar(session: LearningSession) -> some View {
+        let completed = session.completedSentenceIDs.count
+        let total = session.sentences.count
+        let progress = total > 0 ? Double(completed) / Double(total) : 0
+
+        return HStack(spacing: 8) {
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Color(.systemGray5))
+                        .frame(height: 6)
+                    Capsule()
+                        .fill(Color.themePrimary)
+                        .frame(width: max(0, geo.size.width * progress), height: 6)
+                }
+            }
+            .frame(height: 6)
+
+            Text("\(completed)/\(total) completed")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(Color.themeTextSecondary)
+                .fixedSize()
+        }
+        .accessibilityIdentifier("sessionProgressBar")
+    }
+
+    // MARK: - Step Indicator
+
+    private var stepIndicator: some View {
+        HStack(spacing: 0) {
+            stepPill(step: .listen, label: "Listen", icon: "play.fill")
+            stepConnector(active: currentStep.rawValue >= PracticeStep.record.rawValue)
+            stepPill(step: .record, label: "Record", icon: "mic.fill")
+            stepConnector(active: currentStep.rawValue >= PracticeStep.transcribe.rawValue)
+            stepPill(step: .transcribe, label: "Check", icon: "waveform")
+            stepConnector(active: currentStep.rawValue >= PracticeStep.compare.rawValue)
+            stepPill(step: .compare, label: "Compare", icon: "checkmark.circle.fill")
+        }
+        .accessibilityIdentifier("stepIndicator")
+    }
+
+    private func stepPill(step: PracticeStep, label: String, icon: String) -> some View {
+        let isActive = currentStep.rawValue >= step.rawValue
+        let isCurrent = currentStep == step
+
+        return VStack(spacing: 4) {
+            ZStack {
+                Circle()
+                    .fill(isActive ? Color.themePrimary : Color(.systemGray5))
+                    .frame(width: 28, height: 28)
+                Image(systemName: icon)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(isActive ? .white : Color.themeTextTertiary)
+            }
+            Text(label)
+                .font(.caption2.weight(isCurrent ? .bold : .regular))
+                .foregroundStyle(isActive ? Color.themeTextPrimary : Color.themeTextTertiary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func stepConnector(active: Bool) -> some View {
+        Rectangle()
+            .fill(active ? Color.themePrimary : Color(.systemGray5))
+            .frame(height: 2)
+            .frame(maxWidth: 24)
+            .padding(.bottom, 16)
     }
 
     // MARK: - Sentence Header + Slider
@@ -164,7 +253,7 @@ struct PracticeView: View {
 
             if showOriginal {
                 Text(currentSentence?.text ?? "")
-                    .font(.body)
+                    .font(.title3)
                     .foregroundStyle(Color.themeTextPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding()
@@ -187,13 +276,14 @@ struct PracticeView: View {
             togglePlayback()
         } label: {
             Label(
-                audioController.isPlaying ? "Stop playback" : "Play sentence",
+                audioController.isPlaying ? "Stop" : "Play sentence",
                 systemImage: audioController.isPlaying ? "stop.fill" : "play.fill"
             )
             .font(.caption.weight(.semibold))
         }
-        .buttonStyle(.bordered)
-        .tint(Color.themePrimary)
+        .buttonStyle(.borderedProminent)
+        .tint(audioController.isPlaying ? Color.themeError : Color.themePrimary)
+        .accessibilityIdentifier("playSentenceButton")
     }
 
     // MARK: - Recording Card
@@ -208,13 +298,19 @@ struct PracticeView: View {
                 recordButton
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(audioController.isRecording ? "Recording..." : "Tap to record")
+                    Text(audioController.isRecording ? "Recording..." : (audioController.latestRecordingURL != nil ? "Recording ready" : "Tap to record"))
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Color.themeTextPrimary)
+                        .foregroundStyle(audioController.isRecording ? Color.themeError : Color.themeTextPrimary)
 
-                    Text("Clip length: \(formattedDuration)")
-                        .font(.caption)
-                        .foregroundStyle(Color.themeTextSecondary)
+                    if audioController.isRecording {
+                        Text(formattedDuration)
+                            .font(.title2.weight(.bold).monospacedDigit())
+                            .foregroundStyle(Color.themeTextPrimary)
+                    } else {
+                        Text("Clip length: \(formattedDuration)")
+                            .font(.caption)
+                            .foregroundStyle(Color.themeTextSecondary)
+                    }
 
                     if audioController.isRecording || !audioController.audioLevels.isEmpty {
                         waveformView
@@ -223,7 +319,7 @@ struct PracticeView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            if audioController.latestRecordingURL != nil && !audioController.isRecording {
+            if audioController.latestRecordingURL != nil && !audioController.isRecording && compareResult == nil {
                 HStack {
                     Spacer()
                     Button {
@@ -235,6 +331,7 @@ struct PracticeView: View {
                     .buttonStyle(.borderedProminent)
                     .tint(Color.themePrimary)
                     .disabled(isTranscribingRecording)
+                    .accessibilityIdentifier("transcribeButton")
                 }
             }
 
@@ -252,7 +349,9 @@ struct PracticeView: View {
         } label: {
             ZStack {
                 Circle()
-                    .fill(Color.themePrimaryGradient)
+                    .fill(audioController.isRecording
+                          ? AnyShapeStyle(Color.themeError)
+                          : AnyShapeStyle(Color.themePrimaryGradient))
 
                 if audioController.isRecording {
                     RoundedRectangle(cornerRadius: 4)
@@ -265,15 +364,17 @@ struct PracticeView: View {
                 }
             }
             .frame(width: 72, height: 72)
+            .shadow(color: audioController.isRecording ? Color.themeError.opacity(0.3) : .clear, radius: 8)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("recordButton")
     }
 
     private var waveformView: some View {
         HStack(alignment: .center, spacing: 2) {
             ForEach(Array(audioController.audioLevels.enumerated()), id: \.offset) { _, level in
                 RoundedRectangle(cornerRadius: 1)
-                    .fill(Color.themePrimary)
+                    .fill(audioController.isRecording ? Color.themeError.opacity(0.8) : Color.themePrimary)
                     .frame(width: 3, height: max(4, level * 24))
             }
         }
@@ -291,10 +392,20 @@ struct PracticeView: View {
     // MARK: - Comparison Card
 
     private func comparisonCard(result: DiffResult) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Comparison")
-                .font(.subheadline.weight(.bold))
-                .foregroundStyle(Color.themeTextPrimary)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Comparison")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(Color.themeTextPrimary)
+
+                Spacer()
+
+                if result.summary.missingCount == 0 && result.summary.wrongCount == 0 && result.summary.extraCount == 0 {
+                    Label("Perfect!", systemImage: "checkmark.seal.fill")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Color.themeSuccess)
+                }
+            }
 
             DiffSummaryChips(result: result)
 
@@ -302,13 +413,41 @@ struct PracticeView: View {
                 .font(.caption)
                 .foregroundStyle(Color.themeTextSecondary)
 
-            FlowLayout(spacing: 4) {
+            FlowLayout(spacing: 6) {
                 ForEach(result.tokens) { token in
                     DiffTokenChip(text: displayText(for: token), kind: token.kind)
                 }
             }
+
+            if result.summary.missingCount > 0 {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Missing words")
+                        .font(.caption)
+                        .foregroundStyle(Color.themeTextSecondary)
+                    FlowLayout(spacing: 6) {
+                        ForEach(result.tokens.filter { $0.kind == .missing }) { token in
+                            Text(token.sourceWord ?? "")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(Color.diffMissingText)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.diffMissingBg, in: RoundedRectangle(cornerRadius: 6))
+                        }
+                    }
+                }
+            }
         }
         .appCard()
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(
+                    result.summary.missingCount == 0 && result.summary.wrongCount == 0 && result.summary.extraCount == 0
+                    ? Color.themeSuccess.opacity(0.4)
+                    : Color.themeWarning.opacity(0.3),
+                    lineWidth: 2
+                )
+        )
+        .accessibilityIdentifier("comparisonCard")
     }
 
     private func displayText(for token: DiffToken) -> String {
@@ -328,11 +467,18 @@ struct PracticeView: View {
 
     private var doneAndNextBar: some View {
         HStack {
+            if let result = compareResult {
+                let total = result.summary.correctCount + result.summary.missingCount + result.summary.wrongCount + result.summary.extraCount
+                let accuracy = total > 0 ? Int(Double(result.summary.correctCount) / Double(total) * 100) : 0
+                Text("\(accuracy)% accuracy")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.themeTextSecondary)
+            }
             Spacer()
             Button {
                 markDoneAndNext()
             } label: {
-                Text("Done and Next")
+                Label("Done and Next", systemImage: "arrow.right.circle.fill")
                     .font(.callout.weight(.semibold))
             }
             .buttonStyle(.borderedProminent)
@@ -348,9 +494,38 @@ struct PracticeView: View {
     @ViewBuilder
     private var errorMessageView: some View {
         if let msg = actionErrorMessage ?? audioController.errorMessage {
-            Text(msg)
-                .font(.footnote)
-                .foregroundStyle(Color.themeError)
+            VStack(spacing: 8) {
+                Text(msg)
+                    .font(.footnote)
+                    .foregroundStyle(Color.themeError)
+
+                if msg.contains("Microphone permission") {
+                    Button {
+                        if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(settingsURL)
+                        }
+                    } label: {
+                        Label("Open Settings", systemImage: "gear")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(Color.themePrimary)
+                } else if msg.contains("failed") || msg.contains("Failed") || msg.contains("error") || msg.contains("Error") {
+                    Button {
+                        actionErrorMessage = nil
+                        audioController.errorMessage = nil
+                    } label: {
+                        Label("Dismiss", systemImage: "xmark.circle")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(Color.themeTextSecondary)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color.themeError.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+            .accessibilityIdentifier("errorMessageView")
         }
     }
 
@@ -370,6 +545,9 @@ struct PracticeView: View {
         userTranscript = ""
         actionErrorMessage = nil
         audioController.stopPlayback()
+        audioController.latestRecordingURL = nil
+        audioController.audioLevels = []
+        audioController.recordingDuration = 0
         viewModel.updateSessionIndex(sessionID: sessionID, newIndex: newIndex)
     }
 
@@ -427,7 +605,7 @@ struct PracticeView: View {
                 isTranscribingRecording = false
                 runComparison()
             } catch {
-                actionErrorMessage = error.localizedDescription
+                actionErrorMessage = "Transcription failed: \(error.localizedDescription)"
                 isTranscribingRecording = false
             }
         }
@@ -459,6 +637,9 @@ struct PracticeView: View {
         compareResult = nil
         userTranscript = ""
         actionErrorMessage = nil
+        audioController.latestRecordingURL = nil
+        audioController.audioLevels = []
+        audioController.recordingDuration = 0
     }
 }
 

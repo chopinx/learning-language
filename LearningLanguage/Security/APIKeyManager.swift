@@ -37,6 +37,12 @@ final class APIKeyManager: ObservableObject {
         return trimmed.isEmpty ? nil : trimmed
     }
 
+    var maskedKey: String? {
+        guard let key = savedKey, key.count > 4 else { return nil }
+        let suffix = String(key.suffix(4))
+        return String(repeating: "\u{2022}", count: 8) + suffix
+    }
+
     func saveKey(_ rawInput: String) {
         let trimmed = rawInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {

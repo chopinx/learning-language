@@ -107,6 +107,13 @@ final class AppViewModel: ObservableObject {
         return sessions.first(where: { $0.id == lastOpenedSessionID }) ?? sessions.first
     }
 
+    func sessionCount(for language: WorkspaceLanguage) -> Int {
+        if language == selectedWorkspace {
+            return sessions.count
+        }
+        return store.loadSessions(for: language).count
+    }
+
     func isWorkspaceActive(_ language: WorkspaceLanguage) -> Bool {
         activeWorkspaces.contains(language)
     }

@@ -14,6 +14,13 @@ struct ImportTranscribeView: View {
             case .textToAudio: return "Create from Text"
             }
         }
+
+        var subtitle: String {
+            switch self {
+            case .importAudio: return "Transcribe an audio file with Deepgram"
+            case .textToAudio: return "Generate practice audio from typed text"
+            }
+        }
     }
 
     @ObservedObject var viewModel: AppViewModel
@@ -33,9 +40,17 @@ struct ImportTranscribeView: View {
     @State private var completedSteps: Set<AppViewModel.ImportPipelineStep> = []
     @State private var failedStep: AppViewModel.ImportPipelineStep?
     @State private var errorMessage: String?
+    @State private var showCancelConfirmation = false
+    @State private var showSettings = false
 
     private var hasValidKey: Bool {
         viewModel.apiKeyManager.savedKey?.isEmpty == false
+    }
+
+    private var hasEnteredData: Bool {
+        !sessionTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || selectedFileURL != nil
+            || !sourceText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     var body: some View {
@@ -59,10 +74,7 @@ struct ImportTranscribeView: View {
                     }
 
                     if let errorMessage {
-                        Text(errorMessage)
-                            .font(.footnote)
-                            .foregroundStyle(Color.themeError)
-                            .appCard()
+                        errorCard(message: errorMessage)
                     }
                 }
                 .padding()
@@ -72,12 +84,28 @@ struct ImportTranscribeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { dismiss() }
-                        .foregroundStyle(Color.themeTextSecondary)
+                    Button("Cancel") {
+                        if hasEnteredData && !isProcessing {
+                            showCancelConfirmation = true
+                        } else {
+                            dismiss()
+                        }
+                    }
+                    .foregroundStyle(Color.themeTextSecondary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     apiKeyBadge
                 }
+            }
+            .confirmationDialog(
+                "Discard this session?",
+                isPresented: $showCancelConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Discard", role: .destructive) { dismiss() }
+                Button("Keep Editing", role: .cancel) {}
+            } message: {
+                Text("You have unsaved input that will be lost.")
             }
             .safeAreaInset(edge: .bottom) {
                 bottomActionButton
@@ -89,6 +117,9 @@ struct ImportTranscribeView: View {
             ) { result in
                 handleFileImport(result)
             }
+            .sheet(isPresented: $showSettings) {
+                SettingsView(viewModel: viewModel, apiKeyManager: viewModel.apiKeyManager)
+            }
             .onChange(of: creationMode) { _, _ in
                 resetPipelineState()
                 errorMessage = nil
@@ -99,13 +130,20 @@ struct ImportTranscribeView: View {
     // MARK: - Mode Picker
 
     private var modePicker: some View {
-        Picker("Mode", selection: $creationMode) {
-            ForEach(SessionCreationMode.allCases) { mode in
-                Text(mode.title).tag(mode)
+        VStack(spacing: 8) {
+            Picker("Mode", selection: $creationMode) {
+                ForEach(SessionCreationMode.allCases) { mode in
+                    Text(mode.title).tag(mode)
+                }
             }
+            .pickerStyle(.segmented)
+            .accessibilityIdentifier("creationModePicker")
+
+            Text(creationMode.subtitle)
+                .font(.caption)
+                .foregroundStyle(Color.themeTextSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .pickerStyle(.segmented)
-        .accessibilityIdentifier("creationModePicker")
     }
 
     // MARK: - API Key Badge
@@ -196,7 +234,12 @@ struct ImportTranscribeView: View {
 
     private func stepCircle(step: AppViewModel.ImportPipelineStep, number: Int) -> some View {
         ZStack {
-            if completedSteps.contains(step) {
+            if failedStep == step {
+                Circle().fill(Color.themeError).frame(width: 24, height: 24)
+                Image(systemName: "xmark")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(.white)
+            } else if completedSteps.contains(step) {
                 Circle().fill(Color.themePrimary).frame(width: 24, height: 24)
                 Text("\(number)")
                     .font(.caption2.weight(.bold))
@@ -218,6 +261,7 @@ struct ImportTranscribeView: View {
     }
 
     private func stepLabelColor(for step: AppViewModel.ImportPipelineStep) -> Color {
+        if failedStep == step { return .themeError }
         if completedSteps.contains(step) || activeStep == step {
             return .themeTextPrimary
         }
@@ -291,9 +335,18 @@ struct ImportTranscribeView: View {
 
     private var selectedFileCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Selected file")
-                .font(.caption)
-                .foregroundStyle(Color.themeTextSecondary)
+            HStack {
+                Text("Selected file")
+                    .font(.caption)
+                    .foregroundStyle(Color.themeTextSecondary)
+
+                Spacer()
+
+                Button("Change") { showFileImporter = true }
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.themePrimary)
+                    .accessibilityIdentifier("changeFileButton")
+            }
 
             HStack {
                 Text(selectedFileName)
@@ -347,24 +400,32 @@ struct ImportTranscribeView: View {
                 .foregroundStyle(Color.themeTextPrimary)
 
             if let activeStep {
-                Text(activeStep.statusMessage)
-                    .font(.caption)
-                    .foregroundStyle(Color.themeTextSecondary)
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                    Text(activeStep.statusMessage)
+                        .font(.caption)
+                        .foregroundStyle(Color.themeTextSecondary)
+                }
             } else if failedStep != nil {
                 Text("An error occurred")
                     .font(.caption)
                     .foregroundStyle(Color.themeError)
             } else if completedSteps.count == currentPipelineSteps.count {
-                Text("Complete")
-                    .font(.caption)
-                    .foregroundStyle(Color.themeSuccess)
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.themeSuccess)
+                    Text("Complete")
+                        .font(.caption)
+                        .foregroundStyle(Color.themeSuccess)
+                }
             }
 
             ZStack(alignment: .leading) {
                 Capsule().fill(Color(.systemGray5)).frame(height: 12)
                 GeometryReader { geo in
                     Capsule()
-                        .fill(Color.themePrimary)
+                        .fill(failedStep != nil ? Color.themeError : Color.themePrimary)
                         .frame(width: max(0, geo.size.width * progressFraction), height: 12)
                 }
                 .frame(height: 12)
@@ -386,6 +447,47 @@ struct ImportTranscribeView: View {
 
     private var progressPercentage: Int {
         Int(progressFraction * 100)
+    }
+
+    // MARK: - Error Card
+
+    private func errorCard(message: String) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(Color.themeError)
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.themeError)
+            }
+
+            HStack(spacing: 12) {
+                if failedStep != nil {
+                    Button {
+                        createSession()
+                    } label: {
+                        Label("Retry", systemImage: "arrow.clockwise")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.themePrimary)
+                    .accessibilityIdentifier("retryButton")
+                }
+
+                if !hasValidKey {
+                    Button {
+                        showSettings = true
+                    } label: {
+                        Label("Go to Settings", systemImage: "gearshape")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(Color.themePrimary)
+                    .accessibilityIdentifier("goToSettingsButton")
+                }
+            }
+        }
+        .appCard()
     }
 
     // MARK: - Bottom Action

@@ -36,8 +36,8 @@ struct OnboardingGuideView: View {
             HStack {
                 Spacer()
                 Button("Skip") { onFinish() }
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(Color.themeTextSecondary)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.themeTextTertiary)
                     .accessibilityIdentifier("onboardingSkipButton")
             }
             .padding()
@@ -51,11 +51,11 @@ struct OnboardingGuideView: View {
                 }
             } label: {
                 Text(selectedPage == pages.count - 1 ? "Get Started" : "Continue")
-                    .font(.headline.weight(.semibold))
+                    .font(.headline.weight(.bold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color.themePrimaryGradient, in: RoundedRectangle(cornerRadius: 12))
+                    .padding(.vertical, 16)
+                    .background(Color.themePrimaryGradient, in: RoundedRectangle(cornerRadius: 14))
             }
             .buttonStyle(.plain)
             .padding(.horizontal)
@@ -79,14 +79,16 @@ struct OnboardingGuideView: View {
 
             VStack(spacing: 14) {
                 Text(page.title)
-                    .font(.title.weight(.bold))
+                    .font(.title2.weight(.bold))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(Color.themeTextPrimary)
+                    .minimumScaleFactor(0.8)
 
                 Text(page.message)
-                    .font(.title3)
+                    .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(Color.themeTextSecondary)
+                    .minimumScaleFactor(0.8)
             }
             .padding(.horizontal)
 

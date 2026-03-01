@@ -10,7 +10,9 @@ struct HomeView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             List {
-                if viewModel.sessions.isEmpty {
+                if viewModel.sessions.isEmpty && !viewModel.apiKeyManager.hasSavedKey {
+                    apiKeySetupPrompt
+                } else if viewModel.sessions.isEmpty {
                     emptyState
                 } else {
                     workspaceSection
@@ -33,19 +35,21 @@ struct HomeView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                Button { showImportSheet = true } label: {
-                    VStack(spacing: 0) {
-                        Label("New Session", systemImage: "plus.circle.fill")
-                            .font(.subheadline.weight(.semibold))
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                        // Extra padding fills the home indicator area
-                        Spacer().frame(height: 20)
+                if viewModel.apiKeyManager.hasSavedKey || !viewModel.sessions.isEmpty {
+                    Button { showImportSheet = true } label: {
+                        VStack(spacing: 0) {
+                            Label("New Session", systemImage: "plus.circle.fill")
+                                .font(.subheadline.weight(.semibold))
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                            // Extra padding fills the home indicator area
+                            Spacer().frame(height: 20)
+                        }
                     }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.white)
+                    .background(Color.themePrimary)
+                    .ignoresSafeArea(edges: .bottom)
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(.white)
-                .background(Color.themePrimary)
-                .ignoresSafeArea(edges: .bottom)
             }
             .navigationDestination(for: UUID.self) { sessionID in
                 PracticeView(viewModel: viewModel, sessionID: sessionID)
@@ -61,6 +65,41 @@ struct HomeView: View {
                 openSession(newSessionID)
             }
         }
+    }
+
+    // MARK: - API Key Setup Prompt
+
+    @ViewBuilder
+    private var apiKeySetupPrompt: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "key.fill")
+                .font(.largeTitle)
+                .foregroundStyle(Color.themePrimary)
+
+            Text("Set Up Your API Key")
+                .font(.headline)
+                .foregroundStyle(Color.themeTextPrimary)
+
+            Text("A Deepgram API key is required to transcribe audio and generate practice sessions.")
+                .font(.subheadline)
+                .foregroundStyle(Color.themeTextSecondary)
+                .multilineTextAlignment(.center)
+
+            Button {
+                showSettings = true
+            } label: {
+                Label("Open Settings", systemImage: "gearshape.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color.themePrimary)
+            .accessibilityIdentifier("setupAPIKeyButton")
+        }
+        .padding(.vertical, 24)
+        .padding(.horizontal)
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets())
     }
 
     // MARK: - Empty State
@@ -90,12 +129,6 @@ struct HomeView: View {
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets())
             .padding(.horizontal)
-        } else {
-            Text("Workspace: \(viewModel.selectedWorkspace.displayName)")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Color.themeTextSecondary)
-                .accessibilityIdentifier("workspaceSingleLabel")
-                .listRowSeparator(.hidden)
         }
     }
 
@@ -107,14 +140,40 @@ struct HomeView: View {
             Button {
                 openSession(lastSession.id)
             } label: {
-                Label("Resume: \(lastSession.title)", systemImage: "play.fill")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.themePrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(spacing: 12) {
+                    Image(systemName: "play.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(Color.themePrimary)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Resume")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(Color.themePrimary)
+
+                        Text(lastSession.title)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Color.themeTextPrimary)
+                            .lineLimit(1)
+
+                        Text("\(Int(lastSession.progress * 100))% complete")
+                            .font(.caption)
+                            .foregroundStyle(Color.themeTextSecondary)
+                    }
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color.themeTextTertiary)
+                }
+                .padding()
+                .background(Color.themePrimary.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("resumeLastSessionButton")
             .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
         }
     }
 
@@ -137,21 +196,6 @@ struct HomeView: View {
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(Color.themeTextPrimary)
         }
-    }
-
-    // MARK: - New Session Button
-
-    private var newSessionButton: some View {
-        Button {
-            showImportSheet = true
-        } label: {
-            Label("New Session", systemImage: "plus.circle.fill")
-                .font(.subheadline.weight(.semibold))
-                .frame(maxWidth: .infinity, minHeight: 50)
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(.white)
-        .background(Color.themePrimary)
     }
 
     // MARK: - Helpers
@@ -203,24 +247,16 @@ private struct SessionRow: View {
     @ViewBuilder
     private var progressChip: some View {
         let pct = Int(session.progress * 100)
-        if pct >= 10 {
-            ChipView(
-                text: "\(pct)% done",
-                foregroundColor: .themeSuccess,
-                backgroundColor: .themeSuccess.opacity(0.15)
-            )
-        } else {
-            ChipView(
-                text: "Just started",
-                foregroundColor: .themeTextSecondary,
-                backgroundColor: .themeTextTertiary.opacity(0.15)
-            )
-        }
+        ChipView(
+            text: "\(pct)% done",
+            foregroundColor: pct >= 10 ? .themeSuccess : .themeTextSecondary,
+            backgroundColor: pct >= 10 ? .themeSuccess.opacity(0.15) : .themeTextTertiary.opacity(0.15)
+        )
     }
 
     private var actionChip: some View {
         ChipView(
-            text: session.progress > 0 ? "Resume" : "Continue",
+            text: session.progress > 0 ? "Continue" : "Start",
             foregroundColor: .themePrimary,
             backgroundColor: .themePrimary.opacity(0.1)
         )

@@ -69,10 +69,9 @@ final class LearningLanguageUITests: XCTestCase {
     @MainActor
     func testWorkspaceSwitcherVisibilityDependsOnActiveWorkspaceCount() throws {
         let singleWorkspaceApp = launchApp(arguments: ["UITEST_BOOTSTRAP"])
-        XCTAssertTrue(singleWorkspaceApp.staticTexts["workspaceSingleLabel"].waitForExistence(timeout: 5))
-        // Workspace picker is now pill chips — should NOT exist in single-workspace mode
+        // Workspace picker should NOT exist in single-workspace mode (label hidden too)
         let singlePicker = findElement(in: singleWorkspaceApp, identifier: "workspacePicker")
-        XCTAssertFalse(singlePicker.exists)
+        XCTAssertFalse(singlePicker.waitForExistence(timeout: 3))
 
         singleWorkspaceApp.terminate()
 
@@ -80,7 +79,6 @@ final class LearningLanguageUITests: XCTestCase {
         // Workspace picker should exist in multi-workspace mode
         let multiPicker = findElement(in: multiWorkspaceApp, identifier: "workspacePicker")
         XCTAssertTrue(multiPicker.waitForExistence(timeout: 5))
-        XCTAssertFalse(multiWorkspaceApp.staticTexts["workspaceSingleLabel"].exists)
     }
 
     @MainActor

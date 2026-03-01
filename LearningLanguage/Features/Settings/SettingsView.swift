@@ -3,7 +3,9 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var viewModel: AppViewModel
     @ObservedObject var apiKeyManager: APIKeyManager
+    @Environment(\.dismiss) private var dismiss
     @State private var apiKeyDraft: String = ""
+    @State private var isEditing: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -15,6 +17,14 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.themePrimary)
+                        .accessibilityIdentifier("settingsDoneButton")
+                }
+            }
             .onAppear {
                 apiKeyDraft = apiKeyManager.savedKey ?? ""
             }
@@ -25,15 +35,33 @@ struct SettingsView: View {
 
     private var apiKeySection: some View {
         Section {
-            SecureField("Enter Deepgram API key", text: $apiKeyDraft)
-                .textContentType(.password)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
+            if isEditing || !apiKeyManager.hasSavedKey {
+                SecureField("Enter Deepgram API key", text: $apiKeyDraft)
+                    .textContentType(.password)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .accessibilityIdentifier("deepgramAPIKeyField")
+            } else if let masked = apiKeyManager.maskedKey {
+                Button {
+                    isEditing = true
+                } label: {
+                    HStack {
+                        Text(masked)
+                            .font(.body.monospaced())
+                            .foregroundStyle(Color.themeTextPrimary)
+                        Spacer()
+                        Text("Edit")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.themePrimary)
+                    }
+                }
                 .accessibilityIdentifier("deepgramAPIKeyField")
+            }
 
             HStack(spacing: 12) {
                 Button("Save") {
                     apiKeyManager.saveKey(apiKeyDraft)
+                    isEditing = false
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(Color.themePrimary)
@@ -51,14 +79,19 @@ struct SettingsView: View {
                 Button("Clear", role: .destructive) {
                     apiKeyManager.clearKey()
                     apiKeyDraft = ""
+                    isEditing = false
                 }
                 .buttonStyle(.bordered)
                 .accessibilityIdentifier("clearAPIKeyButton")
             }
 
             if apiKeyManager.isValidating {
-                ProgressView("Validating...")
-                    .font(.caption)
+                HStack(spacing: 8) {
+                    ProgressView()
+                    Text("Validating...")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.themeTextSecondary)
+                }
             }
 
             validationStatusView
@@ -73,36 +106,42 @@ struct SettingsView: View {
     private var validationStatusView: some View {
         switch apiKeyManager.validationState {
         case .valid(let message):
-            Label {
+            HStack(spacing: 10) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.title3)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(message)
                         .font(.subheadline.weight(.semibold))
                     if let lastChecked = apiKeyManager.lastValidatedAt {
-                        Text("Last checked: \(lastChecked.formatted(date: .omitted, time: .shortened))")
+                        Text("Last validated \(RelativeTimeFormatter.string(from: lastChecked).lowercased())")
                             .font(.caption)
                     }
                     Text("Transcription actions are enabled")
                         .font(.caption)
                 }
-            } icon: {
-                Image(systemName: "checkmark.circle.fill")
+                Spacer()
             }
             .foregroundStyle(Color.themeSuccess)
+            .padding(10)
+            .background(Color.themeSuccess.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
 
         case .invalid(let message):
-            Label {
+            HStack(spacing: 10) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.title3)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(message)
                         .font(.subheadline.weight(.semibold))
                     if let lastChecked = apiKeyManager.lastValidatedAt {
-                        Text("Last checked: \(lastChecked.formatted(date: .omitted, time: .shortened))")
+                        Text("Last checked \(RelativeTimeFormatter.string(from: lastChecked).lowercased())")
                             .font(.caption)
                     }
                 }
-            } icon: {
-                Image(systemName: "xmark.circle.fill")
+                Spacer()
             }
             .foregroundStyle(Color.themeError)
+            .padding(10)
+            .background(Color.themeError.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
 
         case .unknown:
             EmptyView()
@@ -114,16 +153,25 @@ struct SettingsView: View {
     private var workspaceSection: some View {
         Section {
             ForEach(WorkspaceLanguage.allCases) { language in
-                Toggle(
-                    language.displayName,
-                    isOn: workspaceActiveBinding(for: language)
-                )
-                .tint(Color.themePrimary)
-                .accessibilityIdentifier("workspaceToggle_\(language.rawValue)")
-                .disabled(
-                    viewModel.isWorkspaceActive(language)
-                        && !viewModel.canDeactivateWorkspace(language)
-                )
+                HStack {
+                    Toggle(
+                        language.displayName,
+                        isOn: workspaceActiveBinding(for: language)
+                    )
+                    .tint(Color.themePrimary)
+                    .accessibilityIdentifier("workspaceToggle_\(language.rawValue)")
+                    .disabled(
+                        viewModel.isWorkspaceActive(language)
+                            && !viewModel.canDeactivateWorkspace(language)
+                    )
+
+                    if viewModel.isWorkspaceActive(language) {
+                        let count = viewModel.sessionCount(for: language)
+                        Text("\(count) \(count == 1 ? "session" : "sessions")")
+                            .font(.caption)
+                            .foregroundStyle(Color.themeTextTertiary)
+                    }
+                }
             }
 
             Picker("Default Workspace", selection: defaultWorkspaceBinding) {
@@ -135,7 +183,7 @@ struct SettingsView: View {
         } header: {
             Text("Language Workspaces")
         } footer: {
-            Text("Data is isolated per language (sessions, progress, attempts). At least one workspace must stay active.")
+            Text("Data is fully isolated per language — sessions, progress, and attempts are separate. At least one workspace must stay active.")
         }
     }
 
