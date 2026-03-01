@@ -17,6 +17,7 @@ final class APIKeyManager: ObservableObject {
     @Published private(set) var storedKey: String = ""
     @Published var validationState: ValidationState = .unknown
     @Published var isValidating: Bool = false
+    @Published private(set) var lastValidatedAt: Date?
 
     init(
         keychainStore: KeychainStoring = KeychainStore(),
@@ -79,10 +80,12 @@ final class APIKeyManager: ObservableObject {
 
         do {
             let isValid = try await validator.validateAPIKey(keyToValidate)
+            lastValidatedAt = Date()
             validationState = isValid
                 ? .valid(message: "API key validated")
                 : .invalid(message: "API key was rejected")
         } catch {
+            lastValidatedAt = Date()
             validationState = .invalid(message: "Validation failed: \(error.localizedDescription)")
         }
     }

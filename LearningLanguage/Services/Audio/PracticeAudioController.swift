@@ -7,10 +7,17 @@ final class PracticeAudioController: NSObject, ObservableObject {
     @Published var isPlaying = false
     @Published var latestRecordingURL: URL?
     @Published var errorMessage: String?
+    @Published var audioLevels: [CGFloat] = []
+    @Published var recordingDuration: TimeInterval = 0
 
     private var recorder: AVAudioRecorder?
     private var player: AVAudioPlayer?
     private var playbackStopTimer: Timer?
+    private var meteringTimer: Timer?
+    private var durationTimer: Timer?
+    private var recordingStartDate: Date?
+
+    private static let maxLevelSamples = 40
 
     func play(sourceURL: URL, startSec: Double?, endSec: Double?) {
         stopPlayback()
@@ -71,6 +78,7 @@ final class PracticeAudioController: NSObject, ObservableObject {
             ]
 
             let audioRecorder = try AVAudioRecorder(url: recordingURL, settings: settings)
+            audioRecorder.isMeteringEnabled = true
             audioRecorder.prepareToRecord()
             audioRecorder.record()
 
@@ -78,6 +86,12 @@ final class PracticeAudioController: NSObject, ObservableObject {
             latestRecordingURL = recordingURL
             isRecording = true
             errorMessage = nil
+            audioLevels = []
+            recordingDuration = 0
+            recordingStartDate = Date()
+
+            startMeteringTimer()
+            startDurationTimer()
         } catch {
             errorMessage = "Recording failed"
             isRecording = false
@@ -85,9 +99,58 @@ final class PracticeAudioController: NSObject, ObservableObject {
     }
 
     func stopRecording() {
+        meteringTimer?.invalidate()
+        meteringTimer = nil
+        durationTimer?.invalidate()
+        durationTimer = nil
+        recordingStartDate = nil
+
         recorder?.stop()
         recorder = nil
         isRecording = false
+    }
+
+    private func startMeteringTimer() {
+        meteringTimer?.invalidate()
+        meteringTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.updateMetering()
+            }
+        }
+    }
+
+    private func startDurationTimer() {
+        durationTimer?.invalidate()
+        durationTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.updateDuration()
+            }
+        }
+    }
+
+    private func updateMetering() {
+        guard let recorder, recorder.isRecording else {
+            return
+        }
+
+        recorder.updateMeters()
+        let power = recorder.averagePower(forChannel: 0)
+        // Normalize from dB range (-60...0) to 0...1
+        let normalizedPower = max(0, min(1, (power + 60) / 60))
+        let level = CGFloat(normalizedPower)
+
+        audioLevels.append(level)
+        if audioLevels.count > Self.maxLevelSamples {
+            audioLevels.removeFirst(audioLevels.count - Self.maxLevelSamples)
+        }
+    }
+
+    private func updateDuration() {
+        guard let startDate = recordingStartDate else {
+            return
+        }
+
+        recordingDuration = Date().timeIntervalSince(startDate)
     }
 
     private func requestMicrophonePermission() async -> Bool {

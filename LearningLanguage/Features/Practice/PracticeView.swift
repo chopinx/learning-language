@@ -26,6 +26,11 @@ struct PracticeView: View {
         return session.sentences[sentenceIndex]
     }
 
+    private var workspace: WorkspaceLanguage? {
+        guard let session else { return nil }
+        return WorkspaceLanguage(rawValue: session.languageCode)
+    }
+
     var body: some View {
         Group {
             if let session {
@@ -35,140 +40,17 @@ struct PracticeView: View {
 
                     ScrollView {
                         VStack(alignment: .leading, spacing: 18) {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Practice")
-                                    .font(.largeTitle.weight(.bold))
-                                Text("Workspace: \(workspaceName(for: session))")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
+                            headerSection(session: session)
+                            sentenceNavigationSection(session: session)
+                            originalTranscriptCard
+                            recordingCard
+                            if let result = compareResult {
+                                comparisonCard(result: result)
                             }
-
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("Sentence \(sentenceIndex + 1) of \(session.sentences.count)")
-                                    .font(.headline)
-                                    .accessibilityIdentifier("sentenceHeader")
-
-                                HStack {
-                                    Text("1")
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundStyle(.secondary)
-
-                                    Slider(value: sliderBinding, in: sliderRange, step: 1)
-                                        .accessibilityIdentifier("sentenceSlider")
-
-                                    Text("\(session.sentences.count)")
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundStyle(.secondary)
-                                }
-
-                                HStack {
-                                    Button("Prev") {
-                                        jumpToSentence(max(0, sentenceIndex - 1))
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .accessibilityIdentifier("prevSentenceButton")
-
-                                    Spacer()
-
-                                    Button("Next") {
-                                        jumpToSentence(min(session.sentences.count - 1, sentenceIndex + 1))
-                                    }
-                                    .buttonStyle(.borderedProminent)
-                                    .accessibilityIdentifier("nextSentenceButton")
-                                }
-                            }
-                            .appCard()
-
-                            VStack(alignment: .leading, spacing: 10) {
-                                HStack {
-                                    Text("Original Transcript")
-                                        .font(.headline)
-
-                                    Spacer()
-
-                                    Toggle(showOriginal ? "Show" : "Hide", isOn: showOriginalBinding)
-                                        .tint(Color(red: 0.08, green: 0.41, blue: 0.46))
-                                        .accessibilityIdentifier("showOriginalToggle")
-                                }
-
-                                if showOriginal {
-                                    Text(currentSentence?.text ?? "")
-                                        .font(.body)
-                                        .accessibilityIdentifier("originalSentenceText")
-                                } else {
-                                    Text("Original hidden")
-                                        .font(.body)
-                                        .foregroundStyle(.secondary)
-                                        .accessibilityIdentifier("originalHiddenLabel")
-                                }
-                            }
-                            .appCard()
-
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("Practice Audio")
-                                    .font(.headline)
-
-                                HStack(spacing: 10) {
-                                    Button(audioController.isPlaying ? "Stop Playback" : "Play Sentence") {
-                                        togglePlayback()
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .controlSize(.large)
-
-                                    if audioController.isRecording {
-                                        Button("Stop Recording") {
-                                            toggleRecording()
-                                        }
-                                        .buttonStyle(.borderedProminent)
-                                        .controlSize(.large)
-                                    } else {
-                                        Button("Record") {
-                                            toggleRecording()
-                                        }
-                                        .buttonStyle(.bordered)
-                                        .controlSize(.large)
-                                    }
-
-                                    Button("Transcribe Recording") {
-                                        transcribeLatestRecording()
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .controlSize(.large)
-                                    .disabled(audioController.latestRecordingURL == nil || isTranscribingRecording)
-                                }
-
-                                if isTranscribingRecording {
-                                    ProgressView("Transcribing recording...")
-                                }
-                            }
-                            .appCard()
-
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Your Transcript")
-                                    .font(.headline)
-
-                                TextField("Transcribed user speech", text: $userTranscript, axis: .vertical)
-                                    .textFieldStyle(.roundedBorder)
-                                    .lineLimit(3 ... 6)
-                                    .accessibilityIdentifier("userTranscriptField")
-
-                                Button("Compare With Original") {
-                                    runComparison()
-                                }
-                                .buttonStyle(.bordered)
-                                .disabled(userTranscript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                                .accessibilityIdentifier("compareButton")
-                            }
-                            .appCard()
-
                             if let errorMessage = actionErrorMessage ?? audioController.errorMessage {
                                 Text(errorMessage)
                                     .font(.footnote)
                                     .foregroundStyle(.red)
-                            }
-
-                            if let result = compareResult {
-                                ComparisonResultView(result: result)
                             }
                         }
                         .padding()
@@ -177,27 +59,7 @@ struct PracticeView: View {
                 }
                 .safeAreaInset(edge: .bottom) {
                     if compareResult != nil {
-                        Button("Done and Next") {
-                            markDoneAndNext()
-                        }
-                        .buttonStyle(.plain)
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity, minHeight: 54)
-                        .background(
-                            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                .fill(AppTheme.primaryButton)
-                        )
-                        .accessibilityIdentifier("doneAndNextButton")
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 10)
-                        .background(
-                            LinearGradient(
-                                colors: [Color.clear, Color.white.opacity(0.75)],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
+                        doneAndNextBar
                     }
                 }
                 .navigationTitle(session.title)
@@ -213,30 +75,377 @@ struct PracticeView: View {
         }
     }
 
+    // MARK: - Header
+
+    private func headerSection(session: LearningSession) -> some View {
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Practice")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundStyle(AppColors.textPrimary)
+                Text("Workspace: \(workspaceName(for: session))")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(AppColors.textSecondary)
+            }
+
+            Spacer()
+
+            if let ws = workspace {
+                Text(ws.shortCode)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(AppColors.chipInactiveText)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 7)
+                    .background(AppColors.chipInactiveBg, in: Capsule())
+            }
+        }
+    }
+
+    // MARK: - Sentence Navigation
+
+    private func sentenceNavigationSection(session: LearningSession) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Sentence \(sentenceIndex + 1) of \(session.sentences.count)")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(AppColors.textHeading)
+                    .accessibilityIdentifier("sentenceHeader")
+                Text("Drag the handle to jump")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(AppColors.textSecondary)
+            }
+
+            customSlider(session: session)
+
+            HStack {
+                PillButton("Prev", style: .secondary) {
+                    jumpToSentence(max(0, sentenceIndex - 1))
+                }
+                .accessibilityIdentifier("prevSentenceButton")
+
+                Spacer()
+
+                PillButton("Next", style: .primary) {
+                    jumpToSentence(min(session.sentences.count - 1, sentenceIndex + 1))
+                }
+                .accessibilityIdentifier("nextSentenceButton")
+            }
+        }
+    }
+
+    private func customSlider(session: LearningSession) -> some View {
+        HStack(spacing: 8) {
+            Text("1")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(AppColors.chipInactiveText)
+
+            GeometryReader { geo in
+                let totalWidth = geo.size.width
+                let maxIndex = max(Double(session.sentences.count - 1), 1)
+                let fraction = sliderValue / maxIndex
+                let thumbX = totalWidth * CGFloat(fraction)
+
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(AppColors.progressTrack)
+                        .frame(height: 12)
+
+                    Capsule()
+                        .fill(AppColors.tealAccent)
+                        .frame(width: max(0, thumbX), height: 12)
+
+                    Circle()
+                        .fill(Color.white)
+                        .frame(width: 28, height: 28)
+                        .overlay(
+                            Circle()
+                                .stroke(AppColors.tealAccent, lineWidth: 3)
+                        )
+                        .offset(x: thumbX - 14)
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    let newFraction = max(0, min(1, value.location.x / totalWidth))
+                                    let newIndex = Double(Int((newFraction * maxIndex).rounded()))
+                                    sliderValue = newIndex
+                                }
+                                .onEnded { _ in
+                                    jumpToSentence(Int(sliderValue))
+                                }
+                        )
+                }
+                .frame(height: 28)
+            }
+            .frame(height: 28)
+            .accessibilityIdentifier("sentenceSlider")
+
+            Text("\(session.sentences.count)")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(AppColors.chipInactiveText)
+        }
+    }
+
+    // MARK: - Original Transcript Card
+
+    private var originalTranscriptCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Original transcript")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(AppColors.textHeading)
+
+                Spacer()
+
+                showTogglePill
+            }
+
+            if showOriginal {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(currentSentence?.text ?? "")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(AppColors.textHeading)
+                        .accessibilityIdentifier("originalSentenceText")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(AppColors.inputBg)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .stroke(AppColors.inputBorder, lineWidth: 1)
+                        )
+                )
+            } else {
+                Text("Original hidden")
+                    .font(.body)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .accessibilityIdentifier("originalHiddenLabel")
+            }
+
+            playSentenceButton
+        }
+        .appCard()
+    }
+
+    private var showTogglePill: some View {
+        Button {
+            showOriginal.toggle()
+            viewModel.setShowOriginalByDefault(showOriginal)
+        } label: {
+            HStack(spacing: 8) {
+                Text(showOriginal ? "Show" : "Hide")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(Color(red: 0.129, green: 0.412, blue: 0.282))
+
+                Circle()
+                    .fill(Color(red: 0.102, green: 0.478, blue: 0.337))
+                    .frame(width: 22, height: 22)
+            }
+            .padding(.leading, 14)
+            .padding(.trailing, 4)
+            .padding(.vertical, 4)
+            .background(
+                Capsule()
+                    .fill(Color(red: 0.902, green: 0.953, blue: 0.918))
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("showOriginalToggle")
+    }
+
+    private var playSentenceButton: some View {
+        Button {
+            togglePlayback()
+        } label: {
+            HStack(spacing: 8) {
+                if audioController.isPlaying {
+                    Image(systemName: "stop.fill")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(AppColors.tealAccent)
+                } else {
+                    // Play triangle
+                    Image(systemName: "play.fill")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(AppColors.tealAccent)
+                }
+                Text(audioController.isPlaying ? "Stop playback" : "Play sentence")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(AppColors.chipInactiveText)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(
+                Capsule()
+                    .fill(AppColors.chipInactiveBg)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Recording Card
+
+    private var recordingCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Your recording")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(AppColors.textHeading)
+
+            HStack(alignment: .top, spacing: 16) {
+                micButton
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(audioController.isRecording ? "Recording..." : "Tap to record")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(AppColors.textHeading)
+
+                    Text("Clip length: \(formattedDuration)")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(AppColors.textSecondary)
+
+                    if audioController.isRecording || !audioController.audioLevels.isEmpty {
+                        waveformView
+                    }
+                }
+            }
+
+            if audioController.latestRecordingURL != nil && !audioController.isRecording {
+                HStack {
+                    Spacer()
+                    PillButton("Transcribe", icon: "waveform", style: .secondary) {
+                        transcribeLatestRecording()
+                    }
+                    .disabled(isTranscribingRecording)
+                }
+            }
+
+            if isTranscribingRecording {
+                ProgressView("Transcribing recording...")
+                    .font(.caption)
+            }
+        }
+        .appCard()
+    }
+
+    private var micButton: some View {
+        Button {
+            toggleRecording()
+        } label: {
+            ZStack {
+                Circle()
+                    .fill(AppTheme.recordButton)
+                    .frame(width: 104, height: 104)
+
+                if audioController.isRecording {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color.white)
+                        .frame(width: 24, height: 24)
+                } else {
+                    VStack(spacing: 0) {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.white)
+                            .frame(width: 18, height: 24)
+                        Rectangle()
+                            .fill(Color.white)
+                            .frame(width: 3, height: 8)
+                        Capsule()
+                            .fill(Color.white)
+                            .frame(width: 14, height: 7)
+                    }
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var waveformView: some View {
+        HStack(alignment: .center, spacing: 2) {
+            ForEach(Array(audioController.audioLevels.enumerated()), id: \.offset) { _, level in
+                RoundedRectangle(cornerRadius: 1)
+                    .fill(AppColors.tealAccent)
+                    .frame(width: 3, height: max(4, level * 24))
+            }
+        }
+        .frame(height: 28, alignment: .center)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var formattedDuration: String {
+        let total = Int(audioController.recordingDuration)
+        let minutes = total / 60
+        let seconds = total % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    // MARK: - Comparison Card
+
+    private func comparisonCard(result: DiffResult) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Comparison")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(AppColors.textHeading)
+
+            DiffSummaryChips(result: result)
+
+            Text("You said")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(AppColors.textSecondary)
+
+            tokenFlowLayout(tokens: result.tokens)
+        }
+        .appCard()
+    }
+
+    private func tokenFlowLayout(tokens: [DiffToken]) -> some View {
+        FlowLayout(spacing: 4) {
+            ForEach(tokens) { token in
+                DiffTokenChip(text: displayText(for: token), kind: token.kind)
+            }
+        }
+    }
+
+    private func displayText(for token: DiffToken) -> String {
+        switch token.kind {
+        case .correct:
+            return token.userWord ?? token.sourceWord ?? ""
+        case .missing:
+            return token.sourceWord ?? ""
+        case .wrong:
+            return token.userWord ?? ""
+        case .extra:
+            return token.userWord ?? ""
+        }
+    }
+
+    // MARK: - Done and Next
+
+    private var doneAndNextBar: some View {
+        HStack {
+            Spacer()
+            PillButton("Done and Next", style: .primary) {
+                markDoneAndNext()
+            }
+            .accessibilityIdentifier("doneAndNextButton")
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 10)
+        .background(
+            LinearGradient(
+                colors: [Color.clear, Color.white.opacity(0.75)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
+    }
+
+    // MARK: - Bindings & Helpers
+
     private var sliderRange: ClosedRange<Double> {
         guard let session, !session.sentences.isEmpty else {
             return 0 ... 0
         }
 
         return 0 ... Double(session.sentences.count - 1)
-    }
-
-    private var sliderBinding: Binding<Double> {
-        Binding {
-            sliderValue
-        } set: { newValue in
-            sliderValue = newValue
-            jumpToSentence(Int(newValue.rounded()))
-        }
-    }
-
-    private var showOriginalBinding: Binding<Bool> {
-        Binding {
-            showOriginal
-        } set: { newValue in
-            showOriginal = newValue
-            viewModel.setShowOriginalByDefault(newValue)
-        }
     }
 
     private func jumpToSentence(_ newIndex: Int) {
@@ -301,6 +510,7 @@ struct PracticeView: View {
                 )
                 userTranscript = transcript
                 isTranscribingRecording = false
+                runComparison()
             } catch {
                 actionErrorMessage = error.localizedDescription
                 isTranscribingRecording = false
@@ -343,78 +553,46 @@ struct PracticeView: View {
     }
 }
 
-private struct ComparisonResultView: View {
-    let result: DiffResult
+// MARK: - Flow Layout for Token Chips
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Comparison")
-                .font(.headline)
+private struct FlowLayout: Layout {
+    var spacing: CGFloat = 4
 
-            HStack(spacing: 10) {
-                Label("missing \(result.summary.missingCount)", systemImage: "minus.circle")
-                    .font(.caption)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.red.opacity(0.12), in: Capsule())
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let maxWidth = proposal.width ?? .infinity
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var rowHeight: CGFloat = 0
 
-                Label("wrong \(result.summary.wrongCount)", systemImage: "xmark.circle")
-                    .font(.caption)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.orange.opacity(0.12), in: Capsule())
-
-                Label("extra \(result.summary.extraCount)", systemImage: "plus.circle")
-                    .font(.caption)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.indigo.opacity(0.12), in: Capsule())
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x + size.width > maxWidth, x > 0 {
+                x = 0
+                y += rowHeight + spacing
+                rowHeight = 0
             }
-
-            FlexibleWordWrap(tokens: result.tokens)
+            x += size.width + spacing
+            rowHeight = max(rowHeight, size.height)
         }
-        .appCard()
+
+        return CGSize(width: maxWidth, height: y + rowHeight)
     }
-}
 
-private struct FlexibleWordWrap: View {
-    let tokens: [DiffToken]
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var x: CGFloat = bounds.minX
+        var y: CGFloat = bounds.minY
+        var rowHeight: CGFloat = 0
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ForEach(tokens) { token in
-                Text(displayText(for: token))
-                    .font(.caption.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 5)
-                    .background(color(for: token.kind), in: RoundedRectangle(cornerRadius: 8))
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x + size.width > bounds.maxX, x > bounds.minX {
+                x = bounds.minX
+                y += rowHeight + spacing
+                rowHeight = 0
             }
-        }
-    }
-
-    private func displayText(for token: DiffToken) -> String {
-        switch token.kind {
-        case .correct:
-            return token.userWord ?? token.sourceWord ?? ""
-        case .missing:
-            return "[missing: \(token.sourceWord ?? "") ]"
-        case .wrong:
-            return "[wrong: \(token.sourceWord ?? "") -> \(token.userWord ?? "") ]"
-        case .extra:
-            return "[extra: \(token.userWord ?? "") ]"
-        }
-    }
-
-    private func color(for kind: DiffToken.Kind) -> Color {
-        switch kind {
-        case .correct:
-            return .green.opacity(0.14)
-        case .missing:
-            return .red.opacity(0.14)
-        case .wrong:
-            return .orange.opacity(0.14)
-        case .extra:
-            return .indigo.opacity(0.14)
+            subview.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
+            x += size.width + spacing
+            rowHeight = max(rowHeight, size.height)
         }
     }
 }

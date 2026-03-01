@@ -21,6 +21,19 @@ enum WorkspaceLanguage: String, CaseIterable, Codable, Identifiable {
         }
     }
 
+    var shortCode: String {
+        switch self {
+        case .english:
+            return "EN"
+        case .spanish:
+            return "ES"
+        case .japanese:
+            return "JP"
+        case .german:
+            return "DE"
+        }
+    }
+
     var deepgramLanguageCode: String {
         switch self {
         case .english:

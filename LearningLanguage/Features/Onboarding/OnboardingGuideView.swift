@@ -48,6 +48,7 @@ struct OnboardingGuideView: View {
                     onFinish()
                 }
                 .font(.body.weight(.semibold))
+                .foregroundStyle(AppColors.textSecondary)
                 .accessibilityIdentifier("onboardingSkipButton")
             }
             .padding(.horizontal, 20)
@@ -63,11 +64,16 @@ struct OnboardingGuideView: View {
                 }
             } label: {
                 Text(selectedPage == pages.count - 1 ? "Get Started" : "Continue")
-                    .font(.headline)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
+                    .background(
+                        Capsule()
+                            .fill(AppTheme.primaryButton)
+                    )
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.plain)
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
             .background(.ultraThinMaterial)
@@ -81,18 +87,19 @@ struct OnboardingGuideView: View {
 
             Image(systemName: page.systemImage)
                 .font(.system(size: 78))
-                .foregroundStyle(.blue)
+                .foregroundStyle(AppColors.primaryTeal)
                 .symbolEffect(.bounce, value: selectedPage)
 
             VStack(spacing: 14) {
                 Text(page.title)
                     .font(.largeTitle.weight(.bold))
                     .multilineTextAlignment(.center)
+                    .foregroundStyle(AppColors.textPrimary)
 
                 Text(page.message)
                     .font(.title3)
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppColors.textSecondary)
             }
             .padding(.horizontal, 10)
 

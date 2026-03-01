@@ -14,37 +14,11 @@ struct HomeView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("LearningLanguage")
-                                .font(.largeTitle.weight(.bold))
-                            Text("Workspace overview")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(.top, 6)
+                        headerSection
+                        workspaceChipsSection
 
-                        Text("Shadowing workspace dashboard")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(Color(red: 0.18, green: 0.34, blue: 0.4))
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(Color(red: 0.9, green: 0.96, blue: 0.98), in: Capsule())
-
-                        if viewModel.shouldShowWorkspaceSwitcher {
-                            Picker("Workspace", selection: workspaceBinding) {
-                                ForEach(viewModel.activeWorkspaces) { language in
-                                    Text(language.displayName).tag(language)
-                                }
-                            }
-                            .pickerStyle(.segmented)
-                            .accessibilityIdentifier("workspacePicker")
-                            .appCard()
-                        } else {
-                            Text("Workspace: \(viewModel.selectedWorkspace.displayName)")
-                                .font(.footnote.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                                .accessibilityIdentifier("workspaceSingleLabel")
-                                .appCard()
+                        if !viewModel.sessions.isEmpty {
+                            todaySummaryCard
                         }
 
                         if let lastOpenedSession = viewModel.lastOpenedSession {
@@ -55,11 +29,14 @@ struct HomeView: View {
                                     "Resume: \(lastOpenedSession.title)",
                                     systemImage: "play.fill"
                                 )
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(AppColors.chipInactiveText)
                                 .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 10)
+                                .background(AppColors.chipBlueBg, in: Capsule())
                             }
                             .buttonStyle(.plain)
-                            .padding(.vertical, 2)
-                            .appCard()
                             .accessibilityIdentifier("resumeLastSessionButton")
                         }
 
@@ -72,7 +49,8 @@ struct HomeView: View {
                             .padding(.top, 20)
                         } else {
                             Text("Sessions in \(viewModel.selectedWorkspace.displayName)")
-                                .font(.headline)
+                                .font(.subheadline.weight(.bold))
+                                .foregroundStyle(AppColors.textHeading)
                                 .padding(.top, 2)
 
                             LazyVStack(spacing: 12) {
@@ -137,6 +115,105 @@ struct HomeView: View {
         }
     }
 
+    // MARK: - Header with blob decoration
+
+    private var headerSection: some View {
+        ZStack(alignment: .topLeading) {
+            Ellipse()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.851, green: 0.933, blue: 1.0).opacity(0.65),
+                            Color(red: 0.847, green: 0.969, blue: 0.910).opacity(0.2)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 440, height: 280)
+                .offset(x: -25, y: -80)
+                .allowsHitTesting(false)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("LearningLanguage")
+                    .font(.title.weight(.bold))
+                    .foregroundStyle(AppColors.textPrimary)
+
+                Text("Shadowing workspace dashboard")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(AppColors.textSecondary)
+            }
+            .padding(.top, 6)
+        }
+        .clipped()
+    }
+
+    // MARK: - Workspace Chips
+
+    private var workspaceChipsSection: some View {
+        Group {
+            if viewModel.shouldShowWorkspaceSwitcher {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Workspace")
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(AppColors.textHeading)
+
+                    WorkspacePillChips(
+                        workspaces: viewModel.activeWorkspaces,
+                        selected: workspaceBinding
+                    )
+                    .accessibilityIdentifier("workspacePicker")
+                }
+            } else {
+                Text("Workspace: \(viewModel.selectedWorkspace.displayName)")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(AppColors.textSecondary)
+                    .accessibilityIdentifier("workspaceSingleLabel")
+            }
+        }
+    }
+
+    // MARK: - Today Summary Card
+
+    private var todaySummaryCard: some View {
+        let sessionCount = viewModel.sessions.count
+        let totalSentences = viewModel.sessions.reduce(0) { $0 + $1.sentences.count }
+        let plannedMinutes = max(1, totalSentences / 2)
+        let totalCompleted = viewModel.sessions.reduce(0) { $0 + $1.completedSentenceIDs.count }
+        let accuracy = totalSentences > 0
+            ? Int(Double(totalCompleted) / Double(totalSentences) * 100)
+            : 0
+
+        return VStack(alignment: .leading, spacing: 10) {
+            Text("Today")
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(AppColors.textHeading)
+
+            Text("\(sessionCount) sessions active across \(plannedMinutes) min planned")
+                .font(.caption.weight(.medium))
+                .foregroundStyle(AppColors.textSecondary)
+
+            HStack(spacing: 10) {
+                Text("+\(accuracy)% streak")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(AppColors.chipGreenText)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                    .background(AppColors.chipGreenBg, in: Capsule())
+
+                Text("Sentence accuracy \(accuracy)%")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(AppColors.chipInactiveText)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                    .background(AppColors.chipBlueBg, in: Capsule())
+            }
+        }
+        .appCard()
+    }
+
+    // MARK: - Helpers
+
     private func openSession(_ sessionID: UUID) {
         viewModel.setLastOpenedSession(sessionID)
         navigationPath = [sessionID]
@@ -152,28 +229,58 @@ struct HomeView: View {
     }
 }
 
+// MARK: - Session Row
+
 private struct SessionRowView: View {
     let session: LearningSession
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             Text(session.title)
-                .font(.headline)
-                .foregroundStyle(.primary)
+                .font(.body.weight(.bold))
+                .foregroundStyle(AppColors.textPrimary)
 
-            Text("\(session.completedSentenceIDs.count) / \(session.sentences.count) sentences")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            Text("Last active \(RelativeTimeFormatter.string(from: session.updatedAt))")
+                .font(.caption.weight(.medium))
+                .foregroundStyle(AppColors.textSecondary)
 
-            ProgressView(value: session.progress)
-                .tint(.teal)
+            StyledProgressBar(
+                progress: session.progress,
+                completed: session.completedSentenceIDs.count,
+                total: session.sentences.count
+            )
 
-            Text(session.updatedAt.formatted(date: .abbreviated, time: .shortened))
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            HStack(spacing: 8) {
+                progressChip
+
+                Text(session.progress > 0 ? "Resume" : "Continue")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(AppColors.chipInactiveText)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 7)
+                    .background(AppColors.chipBlueBg, in: Capsule())
+            }
         }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
         .appCard()
+    }
+
+    @ViewBuilder
+    private var progressChip: some View {
+        let pct = Int(session.progress * 100)
+        if pct >= 10 {
+            Text("\(pct)% done")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(AppColors.chipGreenText)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(AppColors.chipGreenBg, in: Capsule())
+        } else {
+            Text("Just started")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(AppColors.chipPurpleText)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(AppColors.chipPurpleBg, in: Capsule())
+        }
     }
 }
