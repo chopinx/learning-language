@@ -88,17 +88,13 @@ struct PracticeView: View {
                 stepIndicator
                 originalTranscriptCard
                 holdToRecordSection
-                if let result = compareResult {
-                    comparisonCard(result: result)
-                }
                 errorMessageView
             }
             .padding()
-            .padding(.bottom, compareResult == nil ? 0 : 60)
         }
-        .safeAreaInset(edge: .bottom) {
-            if compareResult != nil {
-                doneAndNextBar
+        .overlay {
+            if let result = compareResult {
+                comparisonPopup(result: result)
             }
         }
     }
@@ -505,65 +501,90 @@ struct PracticeView: View {
         }
     }
 
-    // MARK: - Comparison Card
+    // MARK: - Comparison Popup
 
-    private func comparisonCard(result: DiffResult) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Comparison")
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(Color.themeTextPrimary)
+    private func comparisonPopup(result: DiffResult) -> some View {
+        let total = result.summary.correctCount + result.summary.missingCount + result.summary.wrongCount + result.summary.extraCount
+        let accuracy = total > 0 ? Int(Double(result.summary.correctCount) / Double(total) * 100) : 0
+        let isPerfect = result.summary.missingCount == 0 && result.summary.wrongCount == 0 && result.summary.extraCount == 0
 
-                Spacer()
+        return ZStack {
+            // Dimmed background
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+                .onTapGesture { } // Block taps through
 
-                if result.summary.missingCount == 0 && result.summary.wrongCount == 0 && result.summary.extraCount == 0 {
-                    Label("Perfect!", systemImage: "checkmark.seal.fill")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(Color.themeSuccess)
+            // Popup card
+            VStack(spacing: 20) {
+                // Score header
+                VStack(spacing: 8) {
+                    Text("\(accuracy)%")
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                        .foregroundStyle(isPerfect ? Color.themeSuccess : Color.themePrimary)
+
+                    if isPerfect {
+                        Label("Perfect!", systemImage: "checkmark.seal.fill")
+                            .font(.headline)
+                            .foregroundStyle(Color.themeSuccess)
+                    } else {
+                        Text("Keep practicing!")
+                            .font(.headline)
+                            .foregroundStyle(Color.themeTextPrimary)
+                    }
                 }
-            }
 
-            DiffSummaryChips(result: result)
+                // Summary chips
+                DiffSummaryChips(result: result)
 
-            Text("You said")
-                .font(.caption)
-                .foregroundStyle(Color.themeTextSecondary)
-
-            FlowLayout(spacing: 6) {
-                ForEach(result.tokens) { token in
-                    DiffTokenChip(text: displayText(for: token), kind: token.kind)
-                }
-            }
-
-            if result.summary.missingCount > 0 {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Missing words")
-                        .font(.caption)
+                // Token flow
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("You said")
+                        .font(.caption.weight(.semibold))
                         .foregroundStyle(Color.themeTextSecondary)
+
                     FlowLayout(spacing: 6) {
-                        ForEach(result.tokens.filter { $0.kind == .missing }) { token in
-                            Text(token.sourceWord ?? "")
-                                .font(.caption.weight(.bold))
-                                .foregroundStyle(Color.diffMissingText)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.diffMissingBg, in: RoundedRectangle(cornerRadius: 6))
+                        ForEach(result.tokens) { token in
+                            DiffTokenChip(text: displayText(for: token), kind: token.kind)
                         }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                // Action buttons
+                HStack(spacing: 12) {
+                    Button {
+                        // Retry: clear result, let user try again
+                        compareResult = nil
+                        userTranscript = ""
+                        resetPracticeState()
+                    } label: {
+                        Label("Retry", systemImage: "arrow.counterclockwise")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(Color.themeTextSecondary)
+
+                    Button {
+                        markDoneAndNext()
+                    } label: {
+                        Label("Next", systemImage: "arrow.right")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.themePrimary)
+                    .accessibilityIdentifier("doneAndNextButton")
+                }
             }
+            .padding(24)
+            .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 24))
+            .shadow(color: .black.opacity(0.15), radius: 20, y: 10)
+            .padding(.horizontal, 24)
+            .accessibilityIdentifier("comparisonCard")
         }
-        .appCard()
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(
-                    result.summary.missingCount == 0 && result.summary.wrongCount == 0 && result.summary.extraCount == 0
-                    ? Color.themeSuccess.opacity(0.4)
-                    : Color.themeWarning.opacity(0.3),
-                    lineWidth: 2
-                )
-        )
-        .accessibilityIdentifier("comparisonCard")
+        .transition(.opacity.combined(with: .scale(scale: 0.9)))
+        .animation(.spring(duration: 0.3), value: compareResult != nil)
     }
 
     private func displayText(for token: DiffToken) -> String {
@@ -577,32 +598,6 @@ struct PracticeView: View {
         case .extra:
             return token.userWord ?? ""
         }
-    }
-
-    // MARK: - Done and Next
-
-    private var doneAndNextBar: some View {
-        HStack {
-            if let result = compareResult {
-                let total = result.summary.correctCount + result.summary.missingCount + result.summary.wrongCount + result.summary.extraCount
-                let accuracy = total > 0 ? Int(Double(result.summary.correctCount) / Double(total) * 100) : 0
-                Text("\(accuracy)% accuracy")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(Color.themeTextSecondary)
-            }
-            Spacer()
-            Button {
-                markDoneAndNext()
-            } label: {
-                Label("Done and Next", systemImage: "arrow.right.circle.fill")
-                    .font(.callout.weight(.semibold))
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(Color.themePrimary)
-            .accessibilityIdentifier("doneAndNextButton")
-        }
-        .padding()
-        .background(.ultraThinMaterial)
     }
 
     // MARK: - Error Message
