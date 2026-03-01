@@ -224,19 +224,3 @@ struct ChipView: View {
     }
 }
 
-// MARK: - Badge Component
-
-struct BadgeView: View {
-    let text: String
-    let foregroundColor: Color
-    let backgroundColor: Color
-
-    var body: some View {
-        Text(text)
-            .font(.caption2.weight(.bold))
-            .foregroundStyle(foregroundColor)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(backgroundColor, in: Capsule())
-    }
-}

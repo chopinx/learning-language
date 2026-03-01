@@ -142,22 +142,28 @@ struct HomeView: View {
                         .font(.title2)
                         .foregroundStyle(Color.themePrimary)
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Resume")
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(Color.themePrimary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text("Resume")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(Color.themePrimary)
+                            Spacer()
+                        }
 
                         Text(lastSession.title)
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(Color.themeTextPrimary)
                             .lineLimit(1)
 
-                        Text("\(Int(lastSession.progress * 100))% complete")
-                            .font(.caption)
-                            .foregroundStyle(Color.themeTextSecondary)
-                    }
+                        HStack(spacing: 8) {
+                            ProgressView(value: lastSession.progress)
+                                .tint(Color.themePrimary)
 
-                    Spacer()
+                            Text("\(Int(lastSession.progress * 100))%")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(Color.themeTextTertiary)
+                        }
+                    }
 
                     Image(systemName: "chevron.right")
                         .font(.caption.weight(.semibold))
@@ -218,45 +224,25 @@ private struct SessionRow: View {
     let session: LearningSession
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             Text(session.title)
                 .font(.headline)
                 .foregroundStyle(Color.themeTextPrimary)
 
+            HStack(spacing: 8) {
+                ProgressView(value: session.progress)
+                    .tint(Color.themePrimary)
+
+                Text("\(Int(session.progress * 100))%")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(Color.themeTextTertiary)
+            }
+
             Text("Last active \(RelativeTimeFormatter.string(from: session.updatedAt))")
                 .font(.caption)
                 .foregroundStyle(Color.themeTextSecondary)
-
-            StyledProgressBar(
-                progress: session.progress,
-                completed: session.completedSentenceIDs.count,
-                total: session.sentences.count
-            )
-
-            HStack(spacing: 8) {
-                progressChip
-                actionChip
-            }
         }
         .padding(.vertical, 4)
-    }
-
-    @ViewBuilder
-    private var progressChip: some View {
-        let pct = Int(session.progress * 100)
-        ChipView(
-            text: "\(pct)% done",
-            foregroundColor: pct >= 10 ? .themeSuccess : .themeTextSecondary,
-            backgroundColor: pct >= 10 ? .themeSuccess.opacity(0.15) : .themeTextTertiary.opacity(0.15)
-        )
-    }
-
-    private var actionChip: some View {
-        ChipView(
-            text: session.progress > 0 ? "Continue" : "Start",
-            foregroundColor: .themePrimary,
-            backgroundColor: .themePrimary.opacity(0.1)
-        )
     }
 }
 
