@@ -394,17 +394,20 @@ struct PracticeView: View {
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(Color.themeError)
         } else if audioController.isRecording {
-            VStack(spacing: 4) {
+            VStack(spacing: 8) {
                 Text("Release to compare")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Color.themeTextSecondary)
-                HStack(spacing: 4) {
-                    Image(systemName: "arrow.up")
-                        .font(.caption2)
+                HStack(spacing: 6) {
+                    Image(systemName: "chevron.up")
+                        .font(.caption.weight(.bold))
                     Text("Swipe up to cancel")
-                        .font(.caption2)
+                        .font(.caption.weight(.medium))
                 }
-                .foregroundStyle(Color.themeTextTertiary)
+                .foregroundStyle(Color.themeTextSecondary)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
+                .background(Color(.systemGray6), in: Capsule())
             }
         } else {
             Text("Hold to record")
@@ -623,7 +626,7 @@ struct PracticeView: View {
                     }
                     .buttonStyle(.bordered)
                     .tint(Color.themePrimary)
-                } else if msg.contains("failed") || msg.contains("Failed") || msg.contains("error") || msg.contains("Error") {
+                } else {
                     Button {
                         actionErrorMessage = nil
                         audioController.errorMessage = nil
@@ -654,6 +657,11 @@ struct PracticeView: View {
     private func jumpToSentence(_ newIndex: Int) {
         sentenceIndex = newIndex
         sliderValue = Double(newIndex)
+        resetPracticeState()
+        viewModel.updateSessionIndex(sessionID: sessionID, newIndex: newIndex)
+    }
+
+    private func resetPracticeState() {
         compareResult = nil
         userTranscript = ""
         actionErrorMessage = nil
@@ -665,7 +673,6 @@ struct PracticeView: View {
         audioController.latestRecordingURL = nil
         audioController.audioLevels = []
         audioController.recordingDuration = 0
-        viewModel.updateSessionIndex(sessionID: sessionID, newIndex: newIndex)
     }
 
     private func togglePlayback() {
@@ -713,16 +720,7 @@ struct PracticeView: View {
         let nextIndex = min(sentenceIndex + 1, session.sentences.count - 1)
         sentenceIndex = nextIndex
         sliderValue = Double(nextIndex)
-        compareResult = nil
-        userTranscript = ""
-        actionErrorMessage = nil
-        isProcessing = false
-        isHolding = false
-        isCancelling = false
-        dragOffset = 0
-        audioController.latestRecordingURL = nil
-        audioController.audioLevels = []
-        audioController.recordingDuration = 0
+        resetPracticeState()
     }
 }
 
