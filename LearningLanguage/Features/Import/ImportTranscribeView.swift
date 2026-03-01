@@ -149,10 +149,10 @@ struct ImportTranscribeView: View {
     // MARK: - API Key Badge
 
     private var apiKeyBadge: some View {
-        BadgeView(
+        ChipView(
             text: hasValidKey ? "Key valid" : "Key missing",
-            foregroundColor: hasValidKey ? .themeSuccess : .themeError,
-            backgroundColor: hasValidKey ? .themeSuccess.opacity(0.15) : .themeError.opacity(0.15)
+            foregroundColor: hasValidKey ? Color.themeSuccess : Color.themeError,
+            backgroundColor: hasValidKey ? Color.themeSuccess.opacity(0.15) : Color.themeError.opacity(0.15)
         )
     }
 
@@ -357,10 +357,10 @@ struct ImportTranscribeView: View {
                 Spacer()
 
                 if selectedFileSize > 0 {
-                    BadgeView(
+                    ChipView(
                         text: FileSizeFormatter.string(from: selectedFileSize),
-                        foregroundColor: .themeSuccess,
-                        backgroundColor: .themeSuccess.opacity(0.15)
+                        foregroundColor: Color.themeSuccess,
+                        backgroundColor: Color.themeSuccess.opacity(0.15)
                     )
                 }
             }
