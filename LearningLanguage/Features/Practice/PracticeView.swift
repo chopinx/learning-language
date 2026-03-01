@@ -533,22 +533,9 @@ struct PracticeView: View {
                     }
                 }
 
-                // Summary chips
-                DiffSummaryChips(result: result)
-
-                // Token flow
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("You said")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Color.themeTextSecondary)
-
-                    FlowLayout(spacing: 6) {
-                        ForEach(result.tokens) { token in
-                            DiffTokenChip(text: displayText(for: token), kind: token.kind)
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                // Inline markup result
+                inlineComparisonText(result: result)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                 // Action buttons
                 HStack(spacing: 12) {
@@ -587,17 +574,56 @@ struct PracticeView: View {
         .animation(.spring(duration: 0.3), value: compareResult != nil)
     }
 
-    private func displayText(for token: DiffToken) -> String {
-        switch token.kind {
-        case .correct:
-            return token.userWord ?? token.sourceWord ?? ""
-        case .missing:
-            return token.sourceWord ?? ""
-        case .wrong:
-            return token.userWord ?? ""
-        case .extra:
-            return token.userWord ?? ""
+    /// Build an inline attributed text showing the comparison like a teacher markup:
+    /// - Correct: plain text
+    /// - Missing: (word) in green
+    /// - Extra: ~~word~~ strikethrough in purple
+    /// - Wrong: ~~wrong~~ (right) strikethrough + parenthesis
+    private func inlineComparisonText(result: DiffResult) -> some View {
+        var parts: [Text] = []
+
+        for token in result.tokens {
+            switch token.kind {
+            case .correct:
+                let word = token.userWord ?? token.sourceWord ?? ""
+                parts.append(Text(word + " ").foregroundColor(Color.themeTextPrimary))
+
+            case .missing:
+                let word = token.sourceWord ?? ""
+                parts.append(
+                    Text("(\(word)) ")
+                        .foregroundColor(Color.diffMissingText)
+                        .fontWeight(.semibold)
+                )
+
+            case .extra:
+                let word = token.userWord ?? ""
+                parts.append(
+                    Text(word + " ")
+                        .strikethrough(color: Color.diffExtraText)
+                        .foregroundColor(Color.diffExtraText)
+                )
+
+            case .wrong:
+                let wrong = token.userWord ?? ""
+                let right = token.sourceWord ?? ""
+                parts.append(
+                    Text(wrong)
+                        .strikethrough(color: Color.diffWrongText)
+                        .foregroundColor(Color.diffWrongText)
+                )
+                parts.append(
+                    Text(" (\(right)) ")
+                        .foregroundColor(Color.diffCorrectText)
+                        .fontWeight(.semibold)
+                )
+            }
         }
+
+        let combined = parts.reduce(Text("")) { $0 + $1 }
+        return combined
+            .font(.body)
+            .lineSpacing(6)
     }
 
     // MARK: - Error Message
