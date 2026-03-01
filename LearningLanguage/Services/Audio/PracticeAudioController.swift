@@ -24,7 +24,7 @@ final class PracticeAudioController: NSObject, ObservableObject {
     private static let maxLevelSamples = 40
 
     func play(sourceURL: URL, startSec: Double?, endSec: Double?) {
-        stopPlayback()
+        tearDownPlayback()
 
         do {
             try configureAudioSessionForPlayback()
@@ -91,9 +91,17 @@ final class PracticeAudioController: NSObject, ObservableObject {
         playbackProgressTimer?.invalidate()
         playbackProgressTimer = nil
 
-        player?.stop()
-        player = nil
+        player?.pause()
         isPlaying = false
+    }
+
+    /// Fully tear down the player (used when switching sentences or resetting).
+    func tearDownPlayback() {
+        stopPlayback()
+        player = nil
+        playbackProgress = 0
+        currentStartSec = 0
+        currentEndSec = 0
     }
 
     private func startPlaybackProgressTimer() {

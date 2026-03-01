@@ -691,7 +691,7 @@ struct PracticeView: View {
         isHolding = false
         isCancelling = false
         dragOffset = 0
-        audioController.stopPlayback()
+        audioController.tearDownPlayback()
         audioController.latestRecordingURL = nil
         audioController.audioLevels = []
         audioController.recordingDuration = 0
