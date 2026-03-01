@@ -63,8 +63,11 @@ struct PracticeView: View {
             }
         }
         .navigationTitle("Practice")
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .toolbar {
+            #if os(iOS)
             ToolbarItem(placement: .topBarTrailing) {
                 if let ws = workspace {
                     ChipView(
@@ -74,6 +77,17 @@ struct PracticeView: View {
                     )
                 }
             }
+            #elseif os(macOS)
+            ToolbarItem(placement: .automatic) {
+                if let ws = workspace {
+                    ChipView(
+                        text: ws.shortCode,
+                        foregroundColor: .themePrimary,
+                        backgroundColor: .themePrimary.opacity(0.12)
+                    )
+                }
+            }
+            #endif
         }
     }
 
@@ -110,7 +124,7 @@ struct PracticeView: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Color(.systemGray5))
+                        .fill(Color.themeGray5)
                         .frame(height: 6)
                     Capsule()
                         .fill(Color.themePrimary)
@@ -147,7 +161,7 @@ struct PracticeView: View {
         return VStack(spacing: 4) {
             ZStack {
                 Circle()
-                    .fill(isActive ? Color.themePrimary : Color(.systemGray5))
+                    .fill(isActive ? Color.themePrimary : Color.themeGray5)
                     .frame(width: 28, height: 28)
                 Image(systemName: icon)
                     .font(.caption2.weight(.semibold))
@@ -162,7 +176,7 @@ struct PracticeView: View {
 
     private func stepConnector(active: Bool) -> some View {
         Rectangle()
-            .fill(active ? Color.themePrimary : Color(.systemGray5))
+            .fill(active ? Color.themePrimary : Color.themeGray5)
             .frame(height: 2)
             .frame(maxWidth: 24)
             .padding(.bottom, 16)
@@ -253,7 +267,7 @@ struct PracticeView: View {
                     .foregroundStyle(Color.themeTextPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding()
-                    .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
+                    .background(Color.themeSecondaryBackground, in: RoundedRectangle(cornerRadius: 12))
                     .accessibilityIdentifier("originalSentenceText")
             } else {
                 Text("Original hidden")
@@ -279,7 +293,7 @@ struct PracticeView: View {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
                         Capsule()
-                            .fill(Color(.systemGray5))
+                            .fill(Color.themeGray5)
                             .frame(height: 6)
                         Capsule()
                             .fill(Color.themePrimary)
@@ -397,7 +411,7 @@ struct PracticeView: View {
             return AnyShapeStyle(Color.themePrimary.opacity(0.5))
         }
         if isCancelling {
-            return AnyShapeStyle(Color(.systemGray4))
+            return AnyShapeStyle(Color.themeGray4)
         }
         if audioController.isRecording {
             return AnyShapeStyle(Color.themeError)
@@ -580,7 +594,7 @@ struct PracticeView: View {
                 }
             }
             .padding(24)
-            .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 24))
+            .background(Color.themeCardBackground, in: RoundedRectangle(cornerRadius: 24))
             .shadow(color: .black.opacity(0.15), radius: 20, y: 10)
             .padding(.horizontal, 24)
             .accessibilityIdentifier("comparisonCard")
@@ -618,6 +632,7 @@ struct PracticeView: View {
                     .foregroundStyle(Color.themeError)
 
                 if msg.contains("Microphone permission") {
+                    #if os(iOS)
                     Button {
                         if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
                             UIApplication.shared.open(settingsURL)
@@ -628,6 +643,11 @@ struct PracticeView: View {
                     }
                     .buttonStyle(.bordered)
                     .tint(Color.themePrimary)
+                    #else
+                    Text("Open System Settings > Privacy & Security > Microphone to grant access.")
+                        .font(.caption)
+                        .foregroundStyle(Color.themeTextSecondary)
+                    #endif
                 } else {
                     Button {
                         actionErrorMessage = nil

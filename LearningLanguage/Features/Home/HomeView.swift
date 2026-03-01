@@ -21,18 +21,31 @@ struct HomeView: View {
                 }
             }
             .listStyle(.plain)
+            #if os(iOS)
             .listRowSpacing(4)
+            #endif
             .scrollContentBackground(.hidden)
-            .background(Color(.systemGroupedBackground))
+            .background(Color.themeBackground)
             .navigationTitle("LearningLanguage")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
+                #if os(iOS)
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showSettings = true } label: {
                         Image(systemName: "gearshape.fill")
                     }
                     .tint(Color.themeTextSecondary)
                 }
+                #elseif os(macOS)
+                ToolbarItem(placement: .automatic) {
+                    Button { showSettings = true } label: {
+                        Image(systemName: "gearshape.fill")
+                    }
+                    .tint(Color.themeTextSecondary)
+                }
+                #endif
             }
             .overlay(alignment: .bottomTrailing) {
                 if viewModel.apiKeyManager.hasSavedKey || !viewModel.sessions.isEmpty {
@@ -56,12 +69,21 @@ struct HomeView: View {
         .sheet(isPresented: $showSettings) {
             SettingsView(viewModel: viewModel, apiKeyManager: viewModel.apiKeyManager)
         }
+        #if os(iOS)
         .fullScreenCover(isPresented: $showImportSheet) {
             ImportTranscribeView(viewModel: viewModel) { newSessionID in
                 showImportSheet = false
                 openSession(newSessionID)
             }
         }
+        #elseif os(macOS)
+        .sheet(isPresented: $showImportSheet) {
+            ImportTranscribeView(viewModel: viewModel) { newSessionID in
+                showImportSheet = false
+                openSession(newSessionID)
+            }
+        }
+        #endif
     }
 
     // MARK: - API Key Setup Prompt

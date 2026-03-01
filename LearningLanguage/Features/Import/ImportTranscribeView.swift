@@ -73,10 +73,13 @@ struct ImportTranscribeView: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .background(Color.themeBackground)
             .navigationTitle("New Session")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
+                #if os(iOS)
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") {
                         if hasEnteredData && !isProcessing {
@@ -90,6 +93,21 @@ struct ImportTranscribeView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     apiKeyBadge
                 }
+                #elseif os(macOS)
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        if hasEnteredData && !isProcessing {
+                            showCancelConfirmation = true
+                        } else {
+                            dismiss()
+                        }
+                    }
+                    .foregroundStyle(Color.themeTextSecondary)
+                }
+                ToolbarItem(placement: .automatic) {
+                    apiKeyBadge
+                }
+                #endif
             }
             .confirmationDialog(
                 "Discard this session?",
@@ -171,7 +189,7 @@ struct ImportTranscribeView: View {
                 }
             }
             .padding(32)
-            .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 20))
+            .background(Color.themeCardBackground, in: RoundedRectangle(cornerRadius: 20))
             .shadow(color: .black.opacity(0.15), radius: 20, y: 10)
             .padding(.horizontal, 40)
         }
@@ -297,13 +315,13 @@ struct ImportTranscribeView: View {
                     .font(.caption2.weight(.bold))
                     .foregroundStyle(.white)
             } else if activeStep == step {
-                Circle().fill(Color(.systemBackground)).frame(width: 24, height: 24)
+                Circle().fill(Color.themeCardBackground).frame(width: 24, height: 24)
                 Circle().stroke(Color.themePrimary, lineWidth: 2).frame(width: 24, height: 24)
                 Text("\(number)")
                     .font(.caption2.weight(.bold))
                     .foregroundStyle(Color.themePrimary)
             } else {
-                Circle().fill(Color(.systemBackground)).frame(width: 24, height: 24)
+                Circle().fill(Color.themeCardBackground).frame(width: 24, height: 24)
                 Circle().stroke(Color.themeBorder, lineWidth: 2).frame(width: 24, height: 24)
                 Text("\(number)")
                     .font(.caption2.weight(.bold))
@@ -334,7 +352,7 @@ struct ImportTranscribeView: View {
                 TextEditor(text: $sourceText)
                     .frame(minHeight: 120)
                     .padding(8)
-                    .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 14))
+                    .background(Color.themeSecondaryBackground, in: RoundedRectangle(cornerRadius: 14))
                     .overlay(
                         RoundedRectangle(cornerRadius: 14)
                             .stroke(Color.themeBorder, lineWidth: 1)
@@ -373,7 +391,7 @@ struct ImportTranscribeView: View {
                 Spacer()
             }
             .padding()
-            .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
+            .background(Color.themeSecondaryBackground, in: RoundedRectangle(cornerRadius: 16))
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(Color.themeBorder, style: StrokeStyle(lineWidth: 1.5, dash: [7, 6]))
@@ -429,11 +447,13 @@ struct ImportTranscribeView: View {
                 .foregroundStyle(Color.themeTextSecondary)
 
             TextField("Cafe and train conversation", text: $sessionTitle)
+                #if os(iOS)
                 .textInputAutocapitalization(.sentences)
+                #endif
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(Color.themeTextPrimary)
                 .padding()
-                .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
+                .background(Color.themeSecondaryBackground, in: RoundedRectangle(cornerRadius: 12))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color.themeBorder, lineWidth: 1)
@@ -474,7 +494,7 @@ struct ImportTranscribeView: View {
             }
 
             ZStack(alignment: .leading) {
-                Capsule().fill(Color(.systemGray5)).frame(height: 12)
+                Capsule().fill(Color.themeGray5).frame(height: 12)
                 GeometryReader { geo in
                     Capsule()
                         .fill(failedStep != nil ? Color.themeError : Color.themePrimary)
@@ -557,7 +577,7 @@ struct ImportTranscribeView: View {
         .opacity(canCreateSession ? 1 : 0.5)
         .padding(.horizontal)
         .padding(.vertical, 12)
-        .background(Color(.systemGroupedBackground))
+        .background(Color.themeBackground)
         .accessibilityIdentifier("createSessionButton")
     }
 

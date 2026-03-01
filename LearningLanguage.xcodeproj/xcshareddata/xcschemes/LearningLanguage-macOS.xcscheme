@@ -15,9 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FE85F940385A9FA6789ED466"
-               BuildableName = "LearningLanguage.app"
-               BlueprintName = "LearningLanguage"
+               BlueprintIdentifier = "B71DC5419596BB4CB5824357"
+               BuildableName = "LearningLanguage-macOS.app"
+               BlueprintName = "LearningLanguage-macOS"
                ReferencedContainer = "container:LearningLanguage.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,35 +33,13 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "FE85F940385A9FA6789ED466"
-            BuildableName = "LearningLanguage.app"
-            BlueprintName = "LearningLanguage"
+            BlueprintIdentifier = "B71DC5419596BB4CB5824357"
+            BuildableName = "LearningLanguage-macOS.app"
+            BlueprintName = "LearningLanguage-macOS"
             ReferencedContainer = "container:LearningLanguage.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "17A49EA7FBF073F38ACA96B3"
-               BuildableName = "LearningLanguageTests.xctest"
-               BlueprintName = "LearningLanguageTests"
-               ReferencedContainer = "container:LearningLanguage.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4827DEE884EAC5DD201D0E38"
-               BuildableName = "LearningLanguageUITests.xctest"
-               BlueprintName = "LearningLanguageUITests"
-               ReferencedContainer = "container:LearningLanguage.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <CommandLineArguments>
       </CommandLineArguments>
@@ -80,9 +58,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "FE85F940385A9FA6789ED466"
-            BuildableName = "LearningLanguage.app"
-            BlueprintName = "LearningLanguage"
+            BlueprintIdentifier = "B71DC5419596BB4CB5824357"
+            BuildableName = "LearningLanguage-macOS.app"
+            BlueprintName = "LearningLanguage-macOS"
             ReferencedContainer = "container:LearningLanguage.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -99,9 +77,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "FE85F940385A9FA6789ED466"
-            BuildableName = "LearningLanguage.app"
-            BlueprintName = "LearningLanguage"
+            BlueprintIdentifier = "B71DC5419596BB4CB5824357"
+            BuildableName = "LearningLanguage-macOS.app"
+            BlueprintName = "LearningLanguage-macOS"
             ReferencedContainer = "container:LearningLanguage.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

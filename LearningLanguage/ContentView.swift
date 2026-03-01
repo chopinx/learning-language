@@ -11,11 +11,20 @@ struct ContentView: View {
                     showOnboardingGuide = true
                 }
             }
+            #if os(iOS)
             .fullScreenCover(isPresented: $showOnboardingGuide) {
                 OnboardingGuideView {
                     viewModel.markOnboardingGuideSeen()
                     showOnboardingGuide = false
                 }
             }
+            #elseif os(macOS)
+            .sheet(isPresented: $showOnboardingGuide) {
+                OnboardingGuideView {
+                    viewModel.markOnboardingGuideSeen()
+                    showOnboardingGuide = false
+                }
+            }
+            #endif
     }
 }

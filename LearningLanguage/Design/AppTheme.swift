@@ -24,48 +24,63 @@ extension Color {
 extension Color {
     // MARK: - Primary Colors
     /// Main brand color - Fresh emerald green
-    static let themePrimary = Color(hex: "10B981")!
+    static let themePrimary = Color(hex: "10B981") ?? Color.green
     /// Darker variant for contrast
-    static let themePrimaryDark = Color(hex: "059669")!
+    static let themePrimaryDark = Color(hex: "059669") ?? Color.green
 
     // MARK: - Secondary Colors
     /// Warm accent - Coral orange
-    static let themeSecondary = Color(hex: "F97316")!
+    static let themeSecondary = Color(hex: "F97316") ?? Color.orange
     /// Lighter variant
-    static let themeSecondaryLight = Color(hex: "FB923C")!
+    static let themeSecondaryLight = Color(hex: "FB923C") ?? Color.orange
 
     // MARK: - Semantic Colors
     /// Success - Bright green
-    static let themeSuccess = Color(hex: "22C55E")!
+    static let themeSuccess = Color(hex: "22C55E") ?? Color.green
     /// Warning - Amber
-    static let themeWarning = Color(hex: "F59E0B")!
+    static let themeWarning = Color(hex: "F59E0B") ?? Color.yellow
     /// Error - Rose red
-    static let themeError = Color(hex: "EF4444")!
+    static let themeError = Color(hex: "EF4444") ?? Color.red
     /// Info - Sky blue
-    static let themeInfo = Color(hex: "0EA5E9")!
+    static let themeInfo = Color(hex: "0EA5E9") ?? Color.blue
 
     // MARK: - Neutral Colors (adaptive for dark/light mode)
+    #if os(iOS)
     static let themeBackground = Color(.systemGroupedBackground)
     static let themeCardBackground = Color(.systemBackground)
     static let themeBorder = Color(.separator)
     static let themeTextPrimary = Color(.label)
     static let themeTextSecondary = Color(.secondaryLabel)
     static let themeTextTertiary = Color(.tertiaryLabel)
+    static let themeGray5 = Color(.systemGray5)
+    static let themeGray4 = Color(.systemGray4)
+    static let themeSecondaryBackground = Color(.secondarySystemBackground)
+    #elseif os(macOS)
+    static let themeBackground = Color(nsColor: .controlBackgroundColor)
+    static let themeCardBackground = Color(nsColor: .windowBackgroundColor)
+    static let themeBorder = Color(nsColor: .separatorColor)
+    static let themeTextPrimary = Color(nsColor: .labelColor)
+    static let themeTextSecondary = Color(nsColor: .secondaryLabelColor)
+    static let themeTextTertiary = Color(nsColor: .tertiaryLabelColor)
+    static let themeGray5 = Color(nsColor: .separatorColor)
+    static let themeGray4 = Color(nsColor: .gridColor)
+    static let themeSecondaryBackground = Color(nsColor: .controlBackgroundColor)
+    #endif
 
     // MARK: - Diff Token Colors
-    static let diffCorrectBg = Color(hex: "D1FAE5")!
-    static let diffCorrectText = Color(hex: "065F46")!
-    static let diffMissingBg = Color(hex: "FEE2E2")!
-    static let diffMissingText = Color(hex: "991B1B")!
-    static let diffWrongBg = Color(hex: "FEF3C7")!
-    static let diffWrongText = Color(hex: "92400E")!
-    static let diffExtraBg = Color(hex: "EDE9FE")!
-    static let diffExtraText = Color(hex: "5B21B6")!
+    static let diffCorrectBg = Color(hex: "D1FAE5") ?? Color.green.opacity(0.2)
+    static let diffCorrectText = Color(hex: "065F46") ?? Color.green
+    static let diffMissingBg = Color(hex: "FEE2E2") ?? Color.red.opacity(0.2)
+    static let diffMissingText = Color(hex: "991B1B") ?? Color.red
+    static let diffWrongBg = Color(hex: "FEF3C7") ?? Color.yellow.opacity(0.2)
+    static let diffWrongText = Color(hex: "92400E") ?? Color.orange
+    static let diffExtraBg = Color(hex: "EDE9FE") ?? Color.purple.opacity(0.2)
+    static let diffExtraText = Color(hex: "5B21B6") ?? Color.purple
 
     // MARK: - Gradient
     static var themePrimaryGradient: LinearGradient {
         LinearGradient(
-            colors: [themePrimary, Color(hex: "14B8A6")!],
+            colors: [themePrimary, Color(hex: "14B8A6") ?? Color.teal],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -78,7 +93,7 @@ struct ThemedCardModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding()
-            .background(Color(.systemBackground))
+            .background(Color.themeCardBackground)
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
     }

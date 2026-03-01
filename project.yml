@@ -26,11 +26,29 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: me.xiao.qinbang.LearningLanguage
+        CODE_SIGN_ENTITLEMENTS: LearningLanguage.entitlements
     scheme:
       gatherCoverageData: true
       testTargets:
         - LearningLanguageTests
         - LearningLanguageUITests
+
+  LearningLanguage-macOS:
+    type: application
+    platform: macOS
+    sources:
+      - LearningLanguage
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: me.xiao.qinbang.LearningLanguage
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        CODE_SIGN_ENTITLEMENTS: LearningLanguage.entitlements
+        INFOPLIST_KEY_UILaunchScreen_Generation: ""
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: ""
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: ""
+        TARGETED_DEVICE_FAMILY: ""
+    scheme:
+      gatherCoverageData: true
 
   LearningLanguageTests:
     type: bundle.unit-test

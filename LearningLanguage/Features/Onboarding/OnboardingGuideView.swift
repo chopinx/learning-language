@@ -29,9 +29,11 @@ struct OnboardingGuideView: View {
                 pageView(for: page).tag(index)
             }
         }
+        #if os(iOS)
         .tabViewStyle(.page(indexDisplayMode: .always))
+        #endif
         .accessibilityIdentifier("onboardingPager")
-        .background(Color(.systemGroupedBackground))
+        .background(Color.themeBackground)
         .safeAreaInset(edge: .top) {
             HStack {
                 Spacer()
@@ -60,7 +62,7 @@ struct OnboardingGuideView: View {
             .buttonStyle(.plain)
             .padding(.horizontal)
             .padding(.vertical, 12)
-            .background(Color(.systemBackground))
+            .background(Color.themeCardBackground)
             .accessibilityIdentifier("onboardingContinueButton")
         }
     }
@@ -98,7 +100,7 @@ struct OnboardingGuideView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(Color(.systemBackground))
+                .fill(Color.themeCardBackground)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 24)
         )

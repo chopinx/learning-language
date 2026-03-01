@@ -10,7 +10,7 @@ final class LearningSessionStore {
         self.fileManager = fileManager
         self.encoder = JSONEncoder()
         self.decoder = JSONDecoder()
-        self.baseDirectoryURL = baseDirectoryURL ?? fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        self.baseDirectoryURL = baseDirectoryURL ?? iCloudDirectoryProvider.defaultBaseDirectory(fileManager: fileManager)
 
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         encoder.dateEncodingStrategy = .iso8601

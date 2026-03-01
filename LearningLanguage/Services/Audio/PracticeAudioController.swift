@@ -210,6 +210,7 @@ final class PracticeAudioController: NSObject, ObservableObject {
 
     private func requestMicrophonePermission() async -> Bool {
         await withCheckedContinuation { continuation in
+            #if os(iOS)
             if #available(iOS 17.0, *) {
                 AVAudioApplication.requestRecordPermission { granted in
                     continuation.resume(returning: granted)
@@ -219,19 +220,28 @@ final class PracticeAudioController: NSObject, ObservableObject {
                     continuation.resume(returning: granted)
                 }
             }
+            #else
+            AVCaptureDevice.requestAccess(for: .audio) { granted in
+                continuation.resume(returning: granted)
+            }
+            #endif
         }
     }
 
     private func configureAudioSessionForPlayback() throws {
+        #if os(iOS)
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.playback, mode: .default, options: [.duckOthers])
         try session.setActive(true)
+        #endif
     }
 
     private func configureAudioSessionForRecording() throws {
+        #if os(iOS)
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothHFP])
         try session.setActive(true)
+        #endif
     }
 }
 

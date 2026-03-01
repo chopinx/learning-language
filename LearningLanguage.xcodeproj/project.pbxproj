@@ -3,36 +3,61 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		025EC5E778FBCA48D3132BFA /* LearningSessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A44AE9F7AEE288E877537F /* LearningSessionStore.swift */; };
 		043E10ED355EA1F34BCB758D /* WorkspaceConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAFABE0C2D555E996387D76 /* WorkspaceConfig.swift */; };
+		05FDEE89E2B160C8DDC7914A /* iCloudDirectoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 488D4D437AF0D33DBB8753FC /* iCloudDirectoryProvider.swift */; };
+		0760CB1D6F6FBF63B3185FBC /* LearningSessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A44AE9F7AEE288E877537F /* LearningSessionStore.swift */; };
 		07C7B0361D3C4E3E1AE22DC8 /* WorkspaceAudioStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C16162CE83E9CCE3813324 /* WorkspaceAudioStore.swift */; };
 		07D943F6311C8932CCC3A70C /* TranscriptDiff.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3856E2E52F9E1A688FFD6BB /* TranscriptDiff.swift */; };
 		0DB444DC8EF90C9019625DCA /* OnboardingGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 799CB504BE41DB8479559B81 /* OnboardingGuideView.swift */; };
 		10F666BC365C959B47A1BA33 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1125EA289C494E26B83B97E6 /* SettingsView.swift */; };
+		12105448ED92062FDB6E9C37 /* LearningSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1BFB83B0F26D2C6BD79092F /* LearningSession.swift */; };
+		18A937A0593DC0E9127DBEA9 /* iCloudDirectoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 488D4D437AF0D33DBB8753FC /* iCloudDirectoryProvider.swift */; };
+		204994E89133032A9BAEA013 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2BC3902A32FFC2A78A180B0 /* AppTheme.swift */; };
+		2157DD70BAA0E1F3CB96C92E /* APIKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9197D2632D738DF95CD664 /* APIKeyManager.swift */; };
+		25AD884A92158B7F32345AAB /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1125EA289C494E26B83B97E6 /* SettingsView.swift */; };
 		2EE7EB1ADB6AC9CCAF234FD2 /* SentenceSegmenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A3BE0EE253030605AB83150 /* SentenceSegmenter.swift */; };
+		3CEA417C003A70FBE079E02C /* WorkspaceAudioStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C16162CE83E9CCE3813324 /* WorkspaceAudioStore.swift */; };
 		45948DC5AFAAFCB8F6FF735C /* LearningLanguageUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54CFC4C08189BA5E2161A7B7 /* LearningLanguageUITestsLaunchTests.swift */; };
+		4605C2F5F136DDEEDF1FCBDD /* TranscriptDiff.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3856E2E52F9E1A688FFD6BB /* TranscriptDiff.swift */; };
 		49597C464C128537D3138547 /* LearningLanguageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56A8E22E18444B4648B2443C /* LearningLanguageApp.swift */; };
 		4AB8E13F83709A062E1A02C8 /* PracticeAudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5BDADE98F603EBE6AE746C /* PracticeAudioController.swift */; };
+		52ACE34F1441BA9625AC000A /* UITestBootstrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607168F901C3A8E2C990395B /* UITestBootstrapper.swift */; };
 		547AC3D88F1866A6F8349AC4 /* DeepgramClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175CCB2CB32B5B2E22BF8607 /* DeepgramClient.swift */; };
+		55E452144AF0CBFC887D9A76 /* PracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FEF6A38FE824065D4C8058E /* PracticeView.swift */; };
+		5D10CECD414A6706672CC5AC /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5C220F41DBF7B8D9F9C5E3 /* AppViewModel.swift */; };
+		5D92DD3B36CDC85C25EA50BF /* SentenceSegmenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A3BE0EE253030605AB83150 /* SentenceSegmenter.swift */; };
+		5F27DEAC7AD4B0D62473C057 /* ImportTranscribeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D18457593C1B15948276469 /* ImportTranscribeView.swift */; };
 		5FFF7A4449DACDF057EDBA5E /* ImportTranscribeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D18457593C1B15948276469 /* ImportTranscribeView.swift */; };
 		619AD181ECA1EFD4464E779E /* APIKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9197D2632D738DF95CD664 /* APIKeyManager.swift */; };
 		61C2A6FA5BB2DF5E7DA9870C /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995EA988C8607EE27861B1D3 /* HomeView.swift */; };
 		627D9F16CB4FE17815240DFB /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2BC3902A32FFC2A78A180B0 /* AppTheme.swift */; };
 		63459ABDC63B4748A423721B /* DeepgramResponseMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB352BE5E744A3634A49D9D1 /* DeepgramResponseMapper.swift */; };
+		6BA78EB2732486996E6F3449 /* OnboardingGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 799CB504BE41DB8479559B81 /* OnboardingGuideView.swift */; };
+		6FEEEE593EA307641D484F9E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D4CD5A7A7B118CEF10231A0C /* Assets.xcassets */; };
+		731C3041C6DB5F427E1027C3 /* WorkspaceLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE7BA86ECF25B4F623222C8 /* WorkspaceLanguage.swift */; };
+		74B0625F417AFDB823133CE5 /* LearningLanguageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56A8E22E18444B4648B2443C /* LearningLanguageApp.swift */; };
+		7709FA5620B985F1516CFA40 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995EA988C8607EE27861B1D3 /* HomeView.swift */; };
 		774257AAB7D69A533A454929 /* LearningLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98EC69F846995B136A3F87B /* LearningLanguageTests.swift */; };
 		865B3F056513EE090AE45E70 /* UITestBootstrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607168F901C3A8E2C990395B /* UITestBootstrapper.swift */; };
 		8F12DB74D55BFDE5FA43238F /* PracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FEF6A38FE824065D4C8058E /* PracticeView.swift */; };
 		9895EC18326DDD4723F0666D /* WorkspaceLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE7BA86ECF25B4F623222C8 /* WorkspaceLanguage.swift */; };
 		A82A9B2C1F2DB175CEB4431A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3914104CE85AF826FBCF77DA /* ContentView.swift */; };
 		C5AF59C37D66FC6CA15D925A /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5C220F41DBF7B8D9F9C5E3 /* AppViewModel.swift */; };
+		C7B3416418EC39E502453BB4 /* WorkspaceConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAFABE0C2D555E996387D76 /* WorkspaceConfig.swift */; };
 		C8A50936B15614515EF39DC0 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF686CDB950CDE8B611D434E /* KeychainStore.swift */; };
 		DF4C8728D2C6C5090354FC3C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D4CD5A7A7B118CEF10231A0C /* Assets.xcassets */; };
+		E20B58ADEB494C52417E4107 /* DeepgramResponseMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB352BE5E744A3634A49D9D1 /* DeepgramResponseMapper.swift */; };
 		E311B673E11A80F2E543241D /* LearningLanguageUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7EAC70E8C4611986D393A2D /* LearningLanguageUITests.swift */; };
+		E375C8AF382B62CA64FC1A54 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF686CDB950CDE8B611D434E /* KeychainStore.swift */; };
+		E58F85D34F2D1C51905E72FB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3914104CE85AF826FBCF77DA /* ContentView.swift */; };
+		ED5321EF24B7C1C06417F1C0 /* DeepgramClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175CCB2CB32B5B2E22BF8607 /* DeepgramClient.swift */; };
 		F150BBDE19F634F4E351A09D /* LearningSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1BFB83B0F26D2C6BD79092F /* LearningSession.swift */; };
+		F8D8F17E6ECB6967F72B89ED /* PracticeAudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC5BDADE98F603EBE6AE746C /* PracticeAudioController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,20 +78,22 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		00753B0CEE4038DC78C70316 /* LearningLanguage-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LearningLanguage-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0FEF6A38FE824065D4C8058E /* PracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeView.swift; sourceTree = "<group>"; };
 		1125EA289C494E26B83B97E6 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		175CCB2CB32B5B2E22BF8607 /* DeepgramClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramClient.swift; sourceTree = "<group>"; };
 		2F5C220F41DBF7B8D9F9C5E3 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
-		34F725C3C36B7E986C7FABAD /* LearningLanguage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LearningLanguage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		34F725C3C36B7E986C7FABAD /* LearningLanguage.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LearningLanguage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3914104CE85AF826FBCF77DA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		4536D28D0D4AA49B26CD938C /* LearningLanguageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LearningLanguageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4536D28D0D4AA49B26CD938C /* LearningLanguageTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LearningLanguageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		488D4D437AF0D33DBB8753FC /* iCloudDirectoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iCloudDirectoryProvider.swift; sourceTree = "<group>"; };
 		4A3BE0EE253030605AB83150 /* SentenceSegmenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentenceSegmenter.swift; sourceTree = "<group>"; };
 		4FE7BA86ECF25B4F623222C8 /* WorkspaceLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceLanguage.swift; sourceTree = "<group>"; };
 		53A44AE9F7AEE288E877537F /* LearningSessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningSessionStore.swift; sourceTree = "<group>"; };
 		54CFC4C08189BA5E2161A7B7 /* LearningLanguageUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningLanguageUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		56A8E22E18444B4648B2443C /* LearningLanguageApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningLanguageApp.swift; sourceTree = "<group>"; };
 		5D18457593C1B15948276469 /* ImportTranscribeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportTranscribeView.swift; sourceTree = "<group>"; };
-		5D8FBE574037161DE5003162 /* LearningLanguageUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LearningLanguageUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5D8FBE574037161DE5003162 /* LearningLanguageUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LearningLanguageUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		607168F901C3A8E2C990395B /* UITestBootstrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestBootstrapper.swift; sourceTree = "<group>"; };
 		799CB504BE41DB8479559B81 /* OnboardingGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingGuideView.swift; sourceTree = "<group>"; };
 		995EA988C8607EE27861B1D3 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -147,6 +174,7 @@
 		401F4F960E3484CC8F9B0A98 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				00753B0CEE4038DC78C70316 /* LearningLanguage-macOS.app */,
 				34F725C3C36B7E986C7FABAD /* LearningLanguage.app */,
 				4536D28D0D4AA49B26CD938C /* LearningLanguageTests.xctest */,
 				5D8FBE574037161DE5003162 /* LearningLanguageUITests.xctest */,
@@ -225,6 +253,7 @@
 		B4D579D8152D469CE9622245 /* Persistence */ = {
 			isa = PBXGroup;
 			children = (
+				488D4D437AF0D33DBB8753FC /* iCloudDirectoryProvider.swift */,
 				53A44AE9F7AEE288E877537F /* LearningSessionStore.swift */,
 			);
 			path = Persistence;
@@ -311,6 +340,24 @@
 			productReference = 5D8FBE574037161DE5003162 /* LearningLanguageUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		B71DC5419596BB4CB5824357 /* LearningLanguage-macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C1D700FD3DADAA67CAAB2349 /* Build configuration list for PBXNativeTarget "LearningLanguage-macOS" */;
+			buildPhases = (
+				52534AF8FD800675663B2676 /* Sources */,
+				85ED90172E858DE7FFB8E977 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "LearningLanguage-macOS";
+			packageProductDependencies = (
+			);
+			productName = "LearningLanguage-macOS";
+			productReference = 00753B0CEE4038DC78C70316 /* LearningLanguage-macOS.app */;
+			productType = "com.apple.product-type.application";
+		};
 		FE85F940385A9FA6789ED466 /* LearningLanguage */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A30EE937745CA84981E028AC /* Build configuration list for PBXNativeTarget "LearningLanguage" */;
@@ -336,7 +383,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					17A49EA7FBF073F38ACA96B3 = {
 						DevelopmentTeam = R743AM4955;
@@ -344,6 +391,9 @@
 					4827DEE884EAC5DD201D0E38 = {
 						DevelopmentTeam = R743AM4955;
 						TestTargetID = FE85F940385A9FA6789ED466;
+					};
+					B71DC5419596BB4CB5824357 = {
+						DevelopmentTeam = R743AM4955;
 					};
 					FE85F940385A9FA6789ED466 = {
 						DevelopmentTeam = R743AM4955;
@@ -360,10 +410,12 @@
 			);
 			mainGroup = 0F2FC7B2AD2CDA03AC1CBF81;
 			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				FE85F940385A9FA6789ED466 /* LearningLanguage */,
+				B71DC5419596BB4CB5824357 /* LearningLanguage-macOS */,
 				17A49EA7FBF073F38ACA96B3 /* LearningLanguageTests */,
 				4827DEE884EAC5DD201D0E38 /* LearningLanguageUITests */,
 			);
@@ -376,6 +428,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				DF4C8728D2C6C5090354FC3C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		85ED90172E858DE7FFB8E977 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6FEEEE593EA307641D484F9E /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -396,6 +456,36 @@
 			files = (
 				E311B673E11A80F2E543241D /* LearningLanguageUITests.swift in Sources */,
 				45948DC5AFAAFCB8F6FF735C /* LearningLanguageUITestsLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		52534AF8FD800675663B2676 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2157DD70BAA0E1F3CB96C92E /* APIKeyManager.swift in Sources */,
+				204994E89133032A9BAEA013 /* AppTheme.swift in Sources */,
+				5D10CECD414A6706672CC5AC /* AppViewModel.swift in Sources */,
+				E58F85D34F2D1C51905E72FB /* ContentView.swift in Sources */,
+				ED5321EF24B7C1C06417F1C0 /* DeepgramClient.swift in Sources */,
+				E20B58ADEB494C52417E4107 /* DeepgramResponseMapper.swift in Sources */,
+				7709FA5620B985F1516CFA40 /* HomeView.swift in Sources */,
+				5F27DEAC7AD4B0D62473C057 /* ImportTranscribeView.swift in Sources */,
+				E375C8AF382B62CA64FC1A54 /* KeychainStore.swift in Sources */,
+				74B0625F417AFDB823133CE5 /* LearningLanguageApp.swift in Sources */,
+				12105448ED92062FDB6E9C37 /* LearningSession.swift in Sources */,
+				0760CB1D6F6FBF63B3185FBC /* LearningSessionStore.swift in Sources */,
+				6BA78EB2732486996E6F3449 /* OnboardingGuideView.swift in Sources */,
+				F8D8F17E6ECB6967F72B89ED /* PracticeAudioController.swift in Sources */,
+				55E452144AF0CBFC887D9A76 /* PracticeView.swift in Sources */,
+				5D92DD3B36CDC85C25EA50BF /* SentenceSegmenter.swift in Sources */,
+				25AD884A92158B7F32345AAB /* SettingsView.swift in Sources */,
+				4605C2F5F136DDEEDF1FCBDD /* TranscriptDiff.swift in Sources */,
+				52ACE34F1441BA9625AC000A /* UITestBootstrapper.swift in Sources */,
+				3CEA417C003A70FBE079E02C /* WorkspaceAudioStore.swift in Sources */,
+				C7B3416418EC39E502453BB4 /* WorkspaceConfig.swift in Sources */,
+				731C3041C6DB5F427E1027C3 /* WorkspaceLanguage.swift in Sources */,
+				05FDEE89E2B160C8DDC7914A /* iCloudDirectoryProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,6 +515,7 @@
 				07C7B0361D3C4E3E1AE22DC8 /* WorkspaceAudioStore.swift in Sources */,
 				043E10ED355EA1F34BCB758D /* WorkspaceConfig.swift in Sources */,
 				9895EC18326DDD4723F0666D /* WorkspaceLanguage.swift in Sources */,
+				18A937A0593DC0E9127DBEA9 /* iCloudDirectoryProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -497,7 +588,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -534,7 +624,6 @@
 				DEVELOPMENT_TEAM = R743AM4955;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -560,8 +649,6 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -574,7 +661,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -611,7 +697,6 @@
 				DEVELOPMENT_TEAM = R743AM4955;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -630,8 +715,6 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -643,6 +726,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LearningLanguage.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -658,6 +742,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LearningLanguage.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -666,6 +751,46 @@
 				PRODUCT_BUNDLE_IDENTIFIER = me.xiao.qinbang.LearningLanguage;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		93B81628ADDA43FCE67A2380 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LearningLanguage.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.xiao.qinbang.LearningLanguage;
+				SDKROOT = macosx;
+				TARGETED_DEVICE_FAMILY = "";
+			};
+			name = Release;
+		};
+		9FE95D229887AFD6A36D4986 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LearningLanguage.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.xiao.qinbang.LearningLanguage;
+				SDKROOT = macosx;
+				TARGETED_DEVICE_FAMILY = "";
 			};
 			name = Debug;
 		};
@@ -711,6 +836,15 @@
 			buildConfigurations = (
 				74F772342E2F10AD02FB7AFD /* Debug */,
 				694B9337D1BCFF7F58A51F91 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C1D700FD3DADAA67CAAB2349 /* Build configuration list for PBXNativeTarget "LearningLanguage-macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9FE95D229887AFD6A36D4986 /* Debug */,
+				93B81628ADDA43FCE67A2380 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

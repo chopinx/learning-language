@@ -17,14 +17,25 @@ struct SettingsView: View {
                 aboutSection
             }
             .navigationTitle("Settings")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.large)
+            #endif
             .toolbar {
+                #if os(iOS)
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                         .fontWeight(.semibold)
                         .foregroundStyle(Color.themePrimary)
                         .accessibilityIdentifier("settingsDoneButton")
                 }
+                #elseif os(macOS)
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.themePrimary)
+                        .accessibilityIdentifier("settingsDoneButton")
+                }
+                #endif
             }
             .onAppear {
                 apiKeyDraft = apiKeyManager.savedKey ?? ""
@@ -39,7 +50,9 @@ struct SettingsView: View {
             if isEditing || !apiKeyManager.hasSavedKey {
                 SecureField("Enter Deepgram API key", text: $apiKeyDraft)
                     .textContentType(.password)
+                    #if os(iOS)
                     .textInputAutocapitalization(.never)
+                    #endif
                     .autocorrectionDisabled()
                     .accessibilityIdentifier("deepgramAPIKeyField")
             } else if let masked = apiKeyManager.maskedKey {

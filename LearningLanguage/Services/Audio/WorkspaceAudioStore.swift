@@ -23,7 +23,7 @@ final class WorkspaceAudioStore {
 
     init(fileManager: FileManager = .default, baseDirectoryURL: URL? = nil) {
         self.fileManager = fileManager
-        self.baseDirectoryURL = baseDirectoryURL ?? fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        self.baseDirectoryURL = baseDirectoryURL ?? iCloudDirectoryProvider.defaultBaseDirectory(fileManager: fileManager)
     }
 
     func importAudioFile(from sourceURL: URL, sessionID: UUID, workspace: WorkspaceLanguage) throws -> String {
