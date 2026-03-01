@@ -565,27 +565,29 @@ struct PracticeView: View {
         .animation(.spring(duration: 0.3), value: compareResult != nil)
     }
 
-    /// Inline comparison: correct words plain, missing words in (parentheses).
+    /// Show original transcription with colors: green for correct, red for missing.
     private func inlineComparisonText(result: DiffResult) -> some View {
         var parts: [Text] = []
 
         for token in result.tokens {
-            let word = token.sourceWord ?? token.userWord ?? ""
+            let word = token.sourceWord ?? ""
             if token.kind == .missing {
                 parts.append(
-                    Text("(\(word)) ")
-                        .foregroundColor(Color.diffMissingText)
-                        .fontWeight(.semibold)
+                    Text(word + " ")
+                        .foregroundColor(Color.themeError)
                 )
             } else {
-                parts.append(Text("\(word) ").foregroundColor(Color.themeTextPrimary))
+                parts.append(
+                    Text(word + " ")
+                        .foregroundColor(Color.themeSuccess)
+                )
             }
         }
 
         let combined = parts.reduce(Text("")) { $0 + $1 }
         return combined
-            .font(.body)
-            .lineSpacing(6)
+            .font(.title3.weight(.medium))
+            .lineSpacing(8)
     }
 
     // MARK: - Error Message
