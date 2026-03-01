@@ -677,6 +677,74 @@ struct LearningLanguageTests {
         #expect(mockClient.lastTranscribeAPIKey == "dg_test_key_transcribe_123456")
     }
 
+    // MARK: - Design System Utility Tests
+
+    @Test
+    func relativeTimeFormatterReturnsJustNowForRecentDates() {
+        let now = Date()
+        #expect(RelativeTimeFormatter.string(from: now) == "Just now")
+    }
+
+    @Test
+    func relativeTimeFormatterReturnsMinutesAgo() {
+        let fiveMinAgo = Date(timeIntervalSinceNow: -300)
+        #expect(RelativeTimeFormatter.string(from: fiveMinAgo) == "5 min ago")
+    }
+
+    @Test
+    func relativeTimeFormatterReturnsHoursAgo() {
+        let twoHoursAgo = Date(timeIntervalSinceNow: -7200)
+        #expect(RelativeTimeFormatter.string(from: twoHoursAgo) == "2h ago")
+    }
+
+    @Test
+    func relativeTimeFormatterReturnsYesterday() {
+        let yesterday = Date(timeIntervalSinceNow: -100_000)
+        #expect(RelativeTimeFormatter.string(from: yesterday) == "Yesterday")
+    }
+
+    @Test
+    func relativeTimeFormatterReturnsDaysAgo() {
+        let threeDaysAgo = Date(timeIntervalSinceNow: -259_200)
+        #expect(RelativeTimeFormatter.string(from: threeDaysAgo) == "3 days ago")
+    }
+
+    @Test
+    func fileSizeFormatterFormatsBytes() {
+        #expect(FileSizeFormatter.string(from: 500) == "500 B")
+        #expect(FileSizeFormatter.string(from: 2048) == "2 KB")
+        #expect(FileSizeFormatter.string(from: 1_500_000) == "1 MB")
+        #expect(FileSizeFormatter.string(from: 35_000_000) == "33 MB")
+    }
+
+    @Test
+    func workspaceLanguageShortCodesAreCorrect() {
+        #expect(WorkspaceLanguage.english.shortCode == "EN")
+        #expect(WorkspaceLanguage.spanish.shortCode == "ES")
+        #expect(WorkspaceLanguage.japanese.shortCode == "JP")
+        #expect(WorkspaceLanguage.german.shortCode == "DE")
+    }
+
+    @Test
+    @MainActor
+    func apiKeyManagerTracksLastValidatedAt() async {
+        let keychain = InMemoryKeychainStore()
+        let mockClient = MockDeepgramClient()
+        let manager = APIKeyManager(
+            keychainStore: keychain,
+            validator: mockClient
+        )
+
+        #expect(manager.lastValidatedAt == nil)
+
+        manager.saveKey("dg_test_validation_timestamp")
+        await manager.validateKey("dg_test_validation_timestamp")
+
+        #expect(manager.lastValidatedAt != nil)
+    }
+
+    // MARK: - Recording Rejection
+
     @Test
     @MainActor
     func appViewModelRejectsEmptyRecordingTranscript() async throws {
