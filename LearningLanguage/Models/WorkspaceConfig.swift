@@ -20,7 +20,7 @@ struct WorkspaceConfig: Codable, Hashable {
         activeWorkspaces: [WorkspaceLanguage],
         defaultWorkspace: WorkspaceLanguage,
         hasSeenOnboarding: Bool = false,
-        minSentenceDuration: Double = 2.0,
+        minSentenceDuration: Double = 5.0,
         updatedAt: Date = Date()
     ) {
         let normalizedActive = WorkspaceConfig.normalizedActiveWorkspaces(from: activeWorkspaces)

@@ -87,16 +87,16 @@ struct LearningLanguageTests {
     }
 
     @Test
-    func transcriptDifferClassifiesMissingWrongAndExtraWords() {
+    func transcriptDifferFindsCorrectAndMissingWords() {
         let source = "kyo wa densha de eki made ikimasu"
-        let user = "kyo wa basu de to eki made"
+        let user = "kyo wa de eki made"
 
         let result = TranscriptDiffer.compare(source: source, user: user)
 
-        #expect(result.summary.correctCount == 5)
-        #expect(result.summary.wrongCount == 1)
-        #expect(result.summary.extraCount == 1)
-        #expect(result.summary.missingCount == 1)
+        #expect(result.summary.correctCount == 5) // kyo, wa, de, eki, made
+        #expect(result.summary.missingCount == 2) // densha, ikimasu
+        #expect(result.summary.wrongCount == 0)
+        #expect(result.summary.extraCount == 0)
     }
 
     @Test
@@ -107,8 +107,79 @@ struct LearningLanguageTests {
         let result = TranscriptDiffer.compare(source: source, user: user)
 
         #expect(result.summary.correctCount == 2)
-        #expect(result.summary.wrongCount == 0)
-        #expect(result.summary.extraCount == 0)
+        #expect(result.summary.missingCount == 0)
+    }
+
+    @Test
+    func transcriptDifferFuzzyMatchesAt70Percent() {
+        // "densh" vs "densha" → LCS "densh" = 5/6 = 83% → match
+        #expect(TranscriptDiffer.fuzzyMatch("densh", "densha") == true)
+
+        // "den" vs "densha" → LCS "den" = 3/6 = 50% → no match
+        #expect(TranscriptDiffer.fuzzyMatch("den", "densha") == false)
+
+        // exact match
+        #expect(TranscriptDiffer.fuzzyMatch("hello", "hello") == true)
+
+        // completely different
+        #expect(TranscriptDiffer.fuzzyMatch("abc", "xyz") == false)
+    }
+
+    @Test
+    func transcriptDifferLCSFindsSkippedWords() {
+        // User skips first word but says the rest — LCS should match b, c, d
+        let source = "a b c d"
+        let user = "b c d"
+
+        let result = TranscriptDiffer.compare(source: source, user: user)
+
+        #expect(result.summary.correctCount == 3) // b, c, d
+        #expect(result.summary.missingCount == 1) // a
+    }
+
+    @Test
+    func transcriptDifferLCSHandlesOutOfOrderWords() {
+        // User says words in different order — LCS finds best subsequence
+        let source = "one two three four five"
+        let user = "one three five"
+
+        let result = TranscriptDiffer.compare(source: source, user: user)
+
+        #expect(result.summary.correctCount == 3) // one, three, five
+        #expect(result.summary.missingCount == 2) // two, four
+    }
+
+    @Test
+    func transcriptDifferPerfectMatch() {
+        let source = "hello world"
+        let user = "hello world"
+
+        let result = TranscriptDiffer.compare(source: source, user: user)
+
+        #expect(result.summary.correctCount == 2)
+        #expect(result.summary.missingCount == 0)
+    }
+
+    @Test
+    func transcriptDifferAllMissing() {
+        let source = "hello world"
+        let user = ""
+
+        let result = TranscriptDiffer.compare(source: source, user: user)
+
+        #expect(result.summary.correctCount == 0)
+        #expect(result.summary.missingCount == 2)
+    }
+
+    @Test
+    func transcriptDifferFuzzyMatchInContext() {
+        // "ikimas" is close enough to "ikimasu" (6/7 = 86%)
+        let source = "kyo wa ikimasu"
+        let user = "kyo wa ikimas"
+
+        let result = TranscriptDiffer.compare(source: source, user: user)
+
+        #expect(result.summary.correctCount == 3) // all match fuzzy
         #expect(result.summary.missingCount == 0)
     }
 
@@ -558,6 +629,7 @@ struct LearningLanguageTests {
 
         viewModel.setWorkspaceActive(.english, isActive: true)
         viewModel.switchWorkspace(to: .english)
+        viewModel.setMinSentenceDuration(0) // Disable merging for this test
 
         var pipelineSteps: [AppViewModel.ImportPipelineStep] = []
         let session = try await viewModel.createSessionFromImportedAudio(

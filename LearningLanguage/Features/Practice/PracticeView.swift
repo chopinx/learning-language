@@ -565,29 +565,22 @@ struct PracticeView: View {
         .animation(.spring(duration: 0.3), value: compareResult != nil)
     }
 
-    /// Show original transcription with colors: green for correct, red for missing.
+    /// Show original transcription with colored blocks: green for correct, red for missing.
     private func inlineComparisonText(result: DiffResult) -> some View {
-        var parts: [Text] = []
-
-        for token in result.tokens {
-            let word = token.sourceWord ?? ""
-            if token.kind == .missing {
-                parts.append(
-                    Text(word + " ")
-                        .foregroundColor(Color.themeError)
-                )
-            } else {
-                parts.append(
-                    Text(word + " ")
-                        .foregroundColor(Color.themeSuccess)
-                )
+        FlowLayout(spacing: 6) {
+            ForEach(result.tokens) { token in
+                let word = token.sourceWord ?? ""
+                Text(word)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(token.kind == .missing ? .white : Color.themeSuccess)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(
+                        token.kind == .missing ? Color.themeError : Color.themeSuccess.opacity(0.12),
+                        in: RoundedRectangle(cornerRadius: 8)
+                    )
             }
         }
-
-        let combined = parts.reduce(Text("")) { $0 + $1 }
-        return combined
-            .font(.title3.weight(.medium))
-            .lineSpacing(8)
     }
 
     // MARK: - Error Message
