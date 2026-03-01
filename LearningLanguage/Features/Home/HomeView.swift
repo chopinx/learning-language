@@ -34,21 +34,18 @@ struct HomeView: View {
                     .tint(Color.themeTextSecondary)
                 }
             }
-            .safeAreaInset(edge: .bottom) {
+            .overlay(alignment: .bottomTrailing) {
                 if viewModel.apiKeyManager.hasSavedKey || !viewModel.sessions.isEmpty {
                     Button { showImportSheet = true } label: {
-                        VStack(spacing: 0) {
-                            Label("New Session", systemImage: "plus.circle.fill")
-                                .font(.subheadline.weight(.semibold))
-                                .frame(maxWidth: .infinity, minHeight: 44)
-                            // Extra padding fills the home indicator area
-                            Spacer().frame(height: 20)
-                        }
+                        Image(systemName: "plus")
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: 56, height: 56)
+                            .background(Color.themePrimary, in: Circle())
+                            .shadow(color: Color.themePrimary.opacity(0.4), radius: 8, y: 4)
                     }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.white)
-                    .background(Color.themePrimary)
-                    .ignoresSafeArea(edges: .bottom)
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 24)
                 }
             }
             .navigationDestination(for: UUID.self) { sessionID in
