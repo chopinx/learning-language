@@ -493,6 +493,15 @@ final class AppViewModel: ObservableObject {
         sortSessions()
     }
 
+    func deleteSession(_ sessionID: UUID) {
+        sessions.removeAll { $0.id == sessionID }
+        if workspaceState.lastOpenedSessionID == sessionID {
+            workspaceState.lastOpenedSessionID = nil
+            workspaceState.updatedAt = Date()
+        }
+        persistCurrentWorkspace()
+    }
+
     private func sortSessions() {
         sessions.sort { $0.updatedAt > $1.updatedAt }
     }

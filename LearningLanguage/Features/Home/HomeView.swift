@@ -193,6 +193,13 @@ struct HomeView: View {
                         viewModel.setLastOpenedSession(session.id)
                     }
                 )
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button(role: .destructive) {
+                        viewModel.deleteSession(session.id)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
             }
         } header: {
             Text("Sessions in \(viewModel.selectedWorkspace.displayName)")
