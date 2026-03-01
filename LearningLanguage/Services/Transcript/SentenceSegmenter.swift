@@ -7,27 +7,73 @@ struct SentenceSlice: Equatable {
 }
 
 enum SentenceSegmenter {
+    /// Sentence-ending punctuation marks.
+    private static let sentenceEnders: Set<Character> = [".", "!", "?", "。", "！", "？"]
+
     static func segment(result: DeepgramTranscriptionResult, minDuration: Double = 0) -> [SentenceSlice] {
-        let raw: [SentenceSlice]
+        let sentences: [SentenceSlice]
 
         if !result.utterances.isEmpty {
-            raw = result.utterances
-                .map {
-                    SentenceSlice(text: $0.transcript, startSec: $0.startSec, endSec: $0.endSec)
-                }
-                .filter { !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            // Step 1: Merge utterances at sentence boundaries
+            sentences = mergeUtterancesAtSentenceBoundaries(result.utterances)
         } else {
-            raw = splitByPunctuation(result.transcript)
+            // Fallback: split full transcript by punctuation (no timing)
+            sentences = splitByPunctuation(result.transcript)
                 .map { SentenceSlice(text: $0, startSec: nil, endSec: nil) }
         }
 
-        guard minDuration > 0 else { return raw }
-        return mergeShortSegments(raw, minDuration: minDuration)
+        // Step 2: Merge short segments by duration
+        guard minDuration > 0 else { return sentences }
+        return mergeShortSegments(sentences, minDuration: minDuration)
     }
 
-    /// Merge segments shorter than `minDuration` with the following segment.
+    // MARK: - Merge utterances at sentence boundaries
+
+    /// Concatenate consecutive utterances until the combined text ends with
+    /// sentence-ending punctuation (. ! ? etc.), then start a new segment.
+    static func mergeUtterancesAtSentenceBoundaries(_ utterances: [DeepgramUtterance]) -> [SentenceSlice] {
+        guard !utterances.isEmpty else { return [] }
+
+        var result: [SentenceSlice] = []
+        var currentText = ""
+        var currentStart: Double? = nil
+        var currentEnd: Double? = nil
+
+        for utterance in utterances {
+            let text = utterance.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !text.isEmpty else { continue }
+
+            if currentText.isEmpty {
+                currentStart = utterance.startSec
+            }
+            currentText += (currentText.isEmpty ? "" : " ") + text
+            currentEnd = utterance.endSec
+
+            // Check if the combined text ends at a sentence boundary
+            if let lastChar = currentText.last, sentenceEnders.contains(lastChar) {
+                result.append(SentenceSlice(
+                    text: currentText.trimmingCharacters(in: .whitespacesAndNewlines),
+                    startSec: currentStart,
+                    endSec: currentEnd
+                ))
+                currentText = ""
+                currentStart = nil
+                currentEnd = nil
+            }
+        }
+
+        // Flush remaining text (didn't end with punctuation)
+        let remaining = currentText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !remaining.isEmpty {
+            result.append(SentenceSlice(text: remaining, startSec: currentStart, endSec: currentEnd))
+        }
+
+        return result
+    }
+
+    // MARK: - Merge short segments by duration
+
     static func mergeShortSegments(_ slices: [SentenceSlice], minDuration: Double) -> [SentenceSlice] {
-        guard !slices.isEmpty else { return [] }
         guard slices.count > 1 else { return slices }
 
         var merged: [SentenceSlice] = []
@@ -35,14 +81,12 @@ enum SentenceSegmenter {
 
         for slice in slices {
             if let p = pending {
-                // Combine pending with current slice
                 let combined = SentenceSlice(
                     text: p.text + " " + slice.text,
                     startSec: p.startSec ?? slice.startSec,
                     endSec: slice.endSec ?? p.endSec
                 )
 
-                // Check if the combined result is still too short
                 if duration(of: combined) < minDuration {
                     pending = combined
                 } else {
@@ -56,7 +100,6 @@ enum SentenceSegmenter {
             }
         }
 
-        // Flush any remaining pending segment
         if let p = pending {
             if let last = merged.last {
                 merged.removeLast()
@@ -66,13 +109,14 @@ enum SentenceSegmenter {
                     endSec: p.endSec ?? last.endSec
                 ))
             } else {
-                // All segments were too short, return the pending one
                 merged.append(p)
             }
         }
 
         return merged
     }
+
+    // MARK: - Helpers
 
     private static func duration(of slice: SentenceSlice) -> Double {
         guard let start = slice.startSec, let end = slice.endSec else { return .infinity }
@@ -85,25 +129,16 @@ enum SentenceSegmenter {
 
         for character in text {
             current.append(character)
-
-            if ".!?".contains(character) {
-                appendSentenceIfNeeded(&sentences, current)
+            if sentenceEnders.contains(character) {
+                let trimmed = current.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty { sentences.append(trimmed) }
                 current = ""
             }
         }
 
-        appendSentenceIfNeeded(&sentences, current)
+        let trimmed = current.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty { sentences.append(trimmed) }
 
         return sentences
-    }
-
-    private static func appendSentenceIfNeeded(_ sentences: inout [String], _ rawValue: String) {
-        let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        guard !trimmed.isEmpty else {
-            return
-        }
-
-        sentences.append(trimmed)
     }
 }

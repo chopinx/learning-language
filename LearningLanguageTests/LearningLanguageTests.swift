@@ -300,6 +300,96 @@ struct LearningLanguageTests {
     }
 
     @Test
+    func sentenceSegmenterMergesUtterancesAtSentenceBoundary() {
+        // Two utterances form one sentence — should merge
+        let utterances = [
+            DeepgramUtterance(transcript: "Hello", startSec: 0, endSec: 0.5),
+            DeepgramUtterance(transcript: "world.", startSec: 0.6, endSec: 1.2),
+            DeepgramUtterance(transcript: "How are you?", startSec: 1.3, endSec: 2.4)
+        ]
+
+        let slices = SentenceSegmenter.mergeUtterancesAtSentenceBoundaries(utterances)
+
+        #expect(slices.count == 2)
+        #expect(slices[0].text == "Hello world.")
+        #expect(slices[0].startSec == 0)
+        #expect(slices[0].endSec == 1.2)
+        #expect(slices[1].text == "How are you?")
+        #expect(slices[1].startSec == 1.3)
+    }
+
+    @Test
+    func sentenceSegmenterMergesMultipleUtterancesIntoOneSentence() {
+        // Three utterances, no sentence-ending punctuation until the last
+        let utterances = [
+            DeepgramUtterance(transcript: "I went", startSec: 0, endSec: 1.0),
+            DeepgramUtterance(transcript: "to the", startSec: 1.1, endSec: 2.0),
+            DeepgramUtterance(transcript: "store.", startSec: 2.1, endSec: 3.0)
+        ]
+
+        let slices = SentenceSegmenter.mergeUtterancesAtSentenceBoundaries(utterances)
+
+        #expect(slices.count == 1)
+        #expect(slices[0].text == "I went to the store.")
+        #expect(slices[0].startSec == 0)
+        #expect(slices[0].endSec == 3.0)
+    }
+
+    @Test
+    func sentenceSegmenterHandlesNoPunctuationInUtterances() {
+        // No sentence-ending punctuation — everything becomes one segment
+        let utterances = [
+            DeepgramUtterance(transcript: "hello", startSec: 0, endSec: 0.5),
+            DeepgramUtterance(transcript: "world", startSec: 0.6, endSec: 1.0)
+        ]
+
+        let slices = SentenceSegmenter.mergeUtterancesAtSentenceBoundaries(utterances)
+
+        #expect(slices.count == 1)
+        #expect(slices[0].text == "hello world")
+    }
+
+    @Test
+    func sentenceSegmenterMergesShortSentencesByDuration() {
+        let slices = [
+            SentenceSlice(text: "Hi.", startSec: 0, endSec: 1.0),       // 1s — short
+            SentenceSlice(text: "Hello.", startSec: 1.1, endSec: 2.0),  // 0.9s — short
+            SentenceSlice(text: "How are you doing today?", startSec: 2.1, endSec: 7.0)  // 4.9s
+        ]
+
+        let merged = SentenceSegmenter.mergeShortSegments(slices, minDuration: 5.0)
+
+        // First two merge with third: "Hi. Hello. How are you doing today?" (0-7s = 7s ≥ 5s)
+        #expect(merged.count == 1)
+        #expect(merged[0].text == "Hi. Hello. How are you doing today?")
+        #expect(merged[0].startSec == 0)
+        #expect(merged[0].endSec == 7.0)
+    }
+
+    @Test
+    func sentenceSegmenterFullPipelineMergesUtterancesThenDuration() {
+        let result = DeepgramTranscriptionResult(
+            transcript: "",
+            utterances: [
+                DeepgramUtterance(transcript: "Hello.", startSec: 0, endSec: 0.8),
+                DeepgramUtterance(transcript: "I am fine.", startSec: 1.0, endSec: 2.5),
+                DeepgramUtterance(transcript: "Thank you very much for asking.", startSec: 3.0, endSec: 6.0)
+            ]
+        )
+
+        // Step 1: merge at sentence boundaries → 3 sentences (each ends with .)
+        // Step 2: merge by minDuration=5.0 → "Hello." (0.8s) + "I am fine." (1.5s) = 2.3s < 5s
+        //   → merge with next: "Hello. I am fine. Thank you very much for asking." (0-6s = 6s ≥ 5s)
+        let slices = SentenceSegmenter.segment(result: result, minDuration: 5.0)
+
+        #expect(slices.count == 1)
+        #expect(slices[0].text.contains("Hello."))
+        #expect(slices[0].text.contains("Thank you"))
+        #expect(slices[0].startSec == 0)
+        #expect(slices[0].endSec == 6.0)
+    }
+
+    @Test
     func sentenceSegmenterFallsBackToPunctuationSplit() {
         let result = DeepgramTranscriptionResult(
             transcript: "Hello world. This is a test! Last one?",
