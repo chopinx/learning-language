@@ -11,21 +11,23 @@ struct PracticeView: View {
     @State private var showOriginal: Bool = true
     @State private var userTranscript: String = ""
     @State private var compareResult: DiffResult?
-    @State private var isTranscribingRecording = false
     @State private var actionErrorMessage: String?
 
-    /// Tracks which step the user is on in the practice flow.
+    // Hold-to-record state
+    @State private var isHolding = false
+    @State private var isCancelling = false
+    @State private var isProcessing = false
+    @State private var dragOffset: CGFloat = 0
+
     private enum PracticeStep: Int, CaseIterable {
         case listen = 0
         case record = 1
-        case transcribe = 2
-        case compare = 3
+        case compare = 2
     }
 
     private var currentStep: PracticeStep {
         if compareResult != nil { return .compare }
-        if isTranscribingRecording { return .transcribe }
-        if audioController.latestRecordingURL != nil && !audioController.isRecording { return .transcribe }
+        if isProcessing { return .record }
         if audioController.isRecording { return .record }
         return .listen
     }
@@ -85,7 +87,7 @@ struct PracticeView: View {
                 sentenceNavigationButtons(session: session)
                 stepIndicator
                 originalTranscriptCard
-                recordingCard
+                holdToRecordSection
                 if let result = compareResult {
                     comparisonCard(result: result)
                 }
@@ -136,8 +138,6 @@ struct PracticeView: View {
             stepPill(step: .listen, label: "Listen", icon: "play.fill")
             stepConnector(active: currentStep.rawValue >= PracticeStep.record.rawValue)
             stepPill(step: .record, label: "Record", icon: "mic.fill")
-            stepConnector(active: currentStep.rawValue >= PracticeStep.transcribe.rawValue)
-            stepPill(step: .transcribe, label: "Check", icon: "waveform")
             stepConnector(active: currentStep.rawValue >= PracticeStep.compare.rawValue)
             stepPill(step: .compare, label: "Compare", icon: "checkmark.circle.fill")
         }
@@ -286,100 +286,142 @@ struct PracticeView: View {
         .accessibilityIdentifier("playSentenceButton")
     }
 
-    // MARK: - Recording Card
+    // MARK: - Hold-to-Record Section
 
-    private var recordingCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
+    private var holdToRecordSection: some View {
+        VStack(spacing: 16) {
             Text("Your recording")
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(Color.themeTextPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-            HStack(alignment: .center, spacing: 16) {
-                recordButton
+            // Waveform + duration while recording
+            if audioController.isRecording {
+                VStack(spacing: 8) {
+                    Text(formattedDuration)
+                        .font(.title.weight(.bold).monospacedDigit())
+                        .foregroundStyle(Color.themeTextPrimary)
 
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(audioController.isRecording ? "Recording..." : (audioController.latestRecordingURL != nil ? "Recording ready" : "Tap to record"))
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(audioController.isRecording ? Color.themeError : Color.themeTextPrimary)
-
-                    if audioController.isRecording {
-                        Text(formattedDuration)
-                            .font(.title2.weight(.bold).monospacedDigit())
-                            .foregroundStyle(Color.themeTextPrimary)
-                    } else {
-                        Text("Clip length: \(formattedDuration)")
-                            .font(.caption)
-                            .foregroundStyle(Color.themeTextSecondary)
-                    }
-
-                    if audioController.isRecording || !audioController.audioLevels.isEmpty {
+                    if !audioController.audioLevels.isEmpty {
                         waveformView
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            if audioController.latestRecordingURL != nil && !audioController.isRecording && compareResult == nil {
-                HStack {
-                    Spacer()
-                    Button {
-                        transcribeLatestRecording()
-                    } label: {
-                        Label("Transcribe", systemImage: "waveform")
-                            .font(.caption.weight(.semibold))
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color.themePrimary)
-                    .disabled(isTranscribingRecording)
-                    .accessibilityIdentifier("transcribeButton")
-                }
-            }
+            // The hold-to-record button
+            holdToRecordButton
+                .accessibilityIdentifier("recordButton")
 
-            if isTranscribingRecording {
-                ProgressView("Transcribing recording...")
-                    .font(.caption)
-            }
+            // Caption below button
+            recordButtonCaption
         }
         .appCard()
     }
 
-    private var recordButton: some View {
-        Button {
-            toggleRecording()
-        } label: {
-            ZStack {
-                Circle()
-                    .fill(audioController.isRecording
-                          ? AnyShapeStyle(Color.themeError)
-                          : AnyShapeStyle(Color.themePrimaryGradient))
+    private var holdToRecordButton: some View {
+        let buttonSize: CGFloat = audioController.isRecording && !isCancelling ? 80 : 72
 
-                if audioController.isRecording {
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.white)
-                        .frame(width: 22, height: 22)
-                } else {
-                    Image(systemName: "mic.fill")
-                        .font(.title2)
-                        .foregroundStyle(.white)
-                }
-            }
-            .frame(width: 72, height: 72)
-            .shadow(color: audioController.isRecording ? Color.themeError.opacity(0.3) : .clear, radius: 8)
+        return ZStack {
+            // Background circle
+            Circle()
+                .fill(buttonFillStyle)
+                .frame(width: buttonSize, height: buttonSize)
+                .shadow(
+                    color: audioController.isRecording && !isCancelling
+                        ? Color.themeError.opacity(0.4) : .clear,
+                    radius: audioController.isRecording && !isCancelling ? 12 : 0
+                )
+                .animation(.easeInOut(duration: 0.2), value: audioController.isRecording)
+                .animation(.easeInOut(duration: 0.2), value: isCancelling)
+
+            // Icon overlay
+            buttonIcon
         }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier("recordButton")
+        .offset(y: audioController.isRecording ? dragOffset : 0)
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { value in
+                    handleDragChanged(value)
+                }
+                .onEnded { _ in
+                    handleDragEnded()
+                }
+        )
+        .disabled(isProcessing)
+    }
+
+    private var buttonFillStyle: AnyShapeStyle {
+        if isProcessing {
+            return AnyShapeStyle(Color.themePrimary.opacity(0.5))
+        }
+        if isCancelling {
+            return AnyShapeStyle(Color(.systemGray4))
+        }
+        if audioController.isRecording {
+            return AnyShapeStyle(Color.themeError)
+        }
+        return AnyShapeStyle(Color.themePrimaryGradient)
+    }
+
+    @ViewBuilder
+    private var buttonIcon: some View {
+        if isProcessing {
+            ProgressView()
+                .tint(.white)
+        } else if isCancelling {
+            Image(systemName: "xmark")
+                .font(.title2.weight(.bold))
+                .foregroundStyle(.white)
+        } else if audioController.isRecording {
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color.white)
+                .frame(width: 22, height: 22)
+        } else {
+            Image(systemName: "mic.fill")
+                .font(.title2)
+                .foregroundStyle(.white)
+        }
+    }
+
+    @ViewBuilder
+    private var recordButtonCaption: some View {
+        if isProcessing {
+            Text("Transcribing...")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Color.themeTextSecondary)
+        } else if isCancelling {
+            Text("Release to cancel")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Color.themeError)
+        } else if audioController.isRecording {
+            VStack(spacing: 4) {
+                Text("Release to compare")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.themeTextSecondary)
+                HStack(spacing: 4) {
+                    Image(systemName: "arrow.up")
+                        .font(.caption2)
+                    Text("Swipe up to cancel")
+                        .font(.caption2)
+                }
+                .foregroundStyle(Color.themeTextTertiary)
+            }
+        } else {
+            Text("Hold to record")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Color.themeTextSecondary)
+        }
     }
 
     private var waveformView: some View {
         HStack(alignment: .center, spacing: 2) {
             ForEach(Array(audioController.audioLevels.enumerated()), id: \.offset) { _, level in
                 RoundedRectangle(cornerRadius: 1)
-                    .fill(audioController.isRecording ? Color.themeError.opacity(0.8) : Color.themePrimary)
+                    .fill(Color.themeError.opacity(0.8))
                     .frame(width: 3, height: max(4, level * 24))
             }
         }
         .frame(height: 28, alignment: .center)
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var formattedDuration: String {
@@ -387,6 +429,77 @@ struct PracticeView: View {
         let minutes = total / 60
         let seconds = total % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    // MARK: - Gesture Handlers
+
+    private func handleDragChanged(_ value: DragGesture.Value) {
+        if !audioController.isRecording && !isProcessing {
+            // Finger just pressed down — start recording
+            startRecording()
+            isHolding = true
+            dragOffset = 0
+            isCancelling = false
+            return
+        }
+
+        // Track vertical drag
+        dragOffset = min(0, value.translation.height)
+        isCancelling = value.translation.height < -80
+    }
+
+    private func handleDragEnded() {
+        guard isHolding else { return }
+        isHolding = false
+
+        if isCancelling {
+            cancelRecording()
+        } else if audioController.isRecording {
+            stopAndProcess()
+        }
+
+        dragOffset = 0
+        isCancelling = false
+    }
+
+    private func startRecording() {
+        actionErrorMessage = nil
+        Task { @MainActor in
+            await audioController.startRecording()
+        }
+    }
+
+    private func cancelRecording() {
+        audioController.stopRecording()
+        audioController.latestRecordingURL = nil
+        audioController.audioLevels = []
+        audioController.recordingDuration = 0
+    }
+
+    private func stopAndProcess() {
+        audioController.stopRecording()
+        isProcessing = true
+
+        guard let recordingURL = audioController.latestRecordingURL else {
+            actionErrorMessage = "No recording captured"
+            isProcessing = false
+            return
+        }
+
+        Task { @MainActor in
+            do {
+                let transcript = try await viewModel.transcribeUserRecording(
+                    fileURL: recordingURL,
+                    sessionLanguageCode: session?.languageCode
+                )
+                userTranscript = transcript
+                isProcessing = false
+                runComparison()
+            } catch {
+                actionErrorMessage = "Transcription failed: \(error.localizedDescription)"
+                isProcessing = false
+            }
+        }
     }
 
     // MARK: - Comparison Card
@@ -544,6 +657,10 @@ struct PracticeView: View {
         compareResult = nil
         userTranscript = ""
         actionErrorMessage = nil
+        isProcessing = false
+        isHolding = false
+        isCancelling = false
+        dragOffset = 0
         audioController.stopPlayback()
         audioController.latestRecordingURL = nil
         audioController.audioLevels = []
@@ -573,44 +690,6 @@ struct PracticeView: View {
         }
     }
 
-    private func toggleRecording() {
-        actionErrorMessage = nil
-
-        if audioController.isRecording {
-            audioController.stopRecording()
-            return
-        }
-
-        Task { @MainActor in
-            await audioController.startRecording()
-        }
-    }
-
-    private func transcribeLatestRecording() {
-        guard let recordingURL = audioController.latestRecordingURL else {
-            actionErrorMessage = "Record audio first"
-            return
-        }
-
-        actionErrorMessage = nil
-        isTranscribingRecording = true
-
-        Task { @MainActor in
-            do {
-                let transcript = try await viewModel.transcribeUserRecording(
-                    fileURL: recordingURL,
-                    sessionLanguageCode: session?.languageCode
-                )
-                userTranscript = transcript
-                isTranscribingRecording = false
-                runComparison()
-            } catch {
-                actionErrorMessage = "Transcription failed: \(error.localizedDescription)"
-                isTranscribingRecording = false
-            }
-        }
-    }
-
     private func runComparison() {
         guard let sourceSentence = currentSentence?.text else {
             return
@@ -637,6 +716,10 @@ struct PracticeView: View {
         compareResult = nil
         userTranscript = ""
         actionErrorMessage = nil
+        isProcessing = false
+        isHolding = false
+        isCancelling = false
+        dragOffset = 0
         audioController.latestRecordingURL = nil
         audioController.audioLevels = []
         audioController.recordingDuration = 0

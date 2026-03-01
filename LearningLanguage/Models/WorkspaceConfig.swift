@@ -4,12 +4,15 @@ struct WorkspaceConfig: Codable, Hashable {
     var activeWorkspaces: [WorkspaceLanguage]
     var defaultWorkspace: WorkspaceLanguage
     var hasSeenOnboarding: Bool
+    /// Minimum sentence duration in seconds. Segments shorter than this merge with the next.
+    var minSentenceDuration: Double
     var updatedAt: Date
 
     private enum CodingKeys: String, CodingKey {
         case activeWorkspaces
         case defaultWorkspace
         case hasSeenOnboarding
+        case minSentenceDuration
         case updatedAt
     }
 
@@ -17,12 +20,14 @@ struct WorkspaceConfig: Codable, Hashable {
         activeWorkspaces: [WorkspaceLanguage],
         defaultWorkspace: WorkspaceLanguage,
         hasSeenOnboarding: Bool = false,
+        minSentenceDuration: Double = 2.0,
         updatedAt: Date = Date()
     ) {
         let normalizedActive = WorkspaceConfig.normalizedActiveWorkspaces(from: activeWorkspaces)
         self.activeWorkspaces = normalizedActive
         self.defaultWorkspace = normalizedActive.contains(defaultWorkspace) ? defaultWorkspace : normalizedActive[0]
         self.hasSeenOnboarding = hasSeenOnboarding
+        self.minSentenceDuration = minSentenceDuration
         self.updatedAt = updatedAt
     }
 
@@ -32,6 +37,7 @@ struct WorkspaceConfig: Codable, Hashable {
         activeWorkspaces = try container.decode([WorkspaceLanguage].self, forKey: .activeWorkspaces)
         defaultWorkspace = try container.decode(WorkspaceLanguage.self, forKey: .defaultWorkspace)
         hasSeenOnboarding = try container.decodeIfPresent(Bool.self, forKey: .hasSeenOnboarding) ?? false
+        minSentenceDuration = try container.decodeIfPresent(Double.self, forKey: .minSentenceDuration) ?? 2.0
         updatedAt = try container.decode(Date.self, forKey: .updatedAt)
     }
 
@@ -40,6 +46,7 @@ struct WorkspaceConfig: Codable, Hashable {
         try container.encode(activeWorkspaces, forKey: .activeWorkspaces)
         try container.encode(defaultWorkspace, forKey: .defaultWorkspace)
         try container.encode(hasSeenOnboarding, forKey: .hasSeenOnboarding)
+        try container.encode(minSentenceDuration, forKey: .minSentenceDuration)
         try container.encode(updatedAt, forKey: .updatedAt)
     }
 

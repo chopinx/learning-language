@@ -127,6 +127,9 @@ User assumptions:
 - FR-3 Sentence segmentation:
   - App must split transcript into sentence items.
   - App should persist sentence timing if returned.
+  - App must support a configurable minimum sentence duration (default: 2 seconds).
+  - Segments shorter than the minimum duration must be merged with the following segment.
+  - The minimum duration setting must be adjustable in Settings.
 - FR-4 Sentence practice:
   - App must support per-sentence playback and user recording.
 - FR-5 User voice transcription:

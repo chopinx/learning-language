@@ -203,6 +203,12 @@ final class AppViewModel: ObservableObject {
         switchWorkspace(to: language)
     }
 
+    func setMinSentenceDuration(_ seconds: Double) {
+        workspaceConfig.minSentenceDuration = max(0, seconds)
+        workspaceConfig.updatedAt = Date()
+        store.saveWorkspaceConfig(workspaceConfig)
+    }
+
     func markOnboardingGuideSeen() {
         guard !workspaceConfig.hasSeenOnboarding else {
             return
@@ -258,7 +264,7 @@ final class AppViewModel: ObservableObject {
         )
 
         progress?(.splittingSentences)
-        let sentenceSlices = SentenceSegmenter.segment(result: transcription)
+        let sentenceSlices = SentenceSegmenter.segment(result: transcription, minDuration: workspaceConfig.minSentenceDuration)
         guard !sentenceSlices.isEmpty else {
             throw AppViewModelError.noSentencesGenerated
         }

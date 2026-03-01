@@ -13,6 +13,7 @@ struct SettingsView: View {
                 apiKeySection
                 workspaceSection
                 showOriginalSection
+                sentenceSettingsSection
                 aboutSection
             }
             .navigationTitle("Settings")
@@ -193,6 +194,36 @@ struct SettingsView: View {
         Section {
             Toggle("Show original transcript by default", isOn: showOriginalBinding)
                 .tint(Color.themePrimary)
+        }
+    }
+
+    // MARK: - Sentence Settings
+
+    private var sentenceSettingsSection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Min sentence duration: \(String(format: "%.1f", viewModel.workspaceConfig.minSentenceDuration))s")
+                    .font(.subheadline)
+                Slider(
+                    value: minDurationBinding,
+                    in: 0...10,
+                    step: 0.5
+                )
+                .tint(Color.themePrimary)
+                Text("Segments shorter than this are merged with the next sentence.")
+                    .font(.caption)
+                    .foregroundStyle(Color.themeTextSecondary)
+            }
+        } header: {
+            Text("Sentence Segmentation")
+        }
+    }
+
+    private var minDurationBinding: Binding<Double> {
+        Binding {
+            viewModel.workspaceConfig.minSentenceDuration
+        } set: { newValue in
+            viewModel.setMinSentenceDuration(newValue)
         }
     }
 
