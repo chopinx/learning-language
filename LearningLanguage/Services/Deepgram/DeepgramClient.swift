@@ -43,9 +43,12 @@ struct DeepgramClient: DeepgramTranscribing {
 
         var components = URLComponents(string: "https://api.deepgram.com/v1/listen")
         var queryItems = [
-            URLQueryItem(name: "punctuate", value: "true"),
+            URLQueryItem(name: "model", value: "nova-3"),
             URLQueryItem(name: "smart_format", value: "true"),
-            URLQueryItem(name: "utterances", value: "true")
+            URLQueryItem(name: "punctuate", value: "true"),
+            URLQueryItem(name: "paragraphs", value: "true"),
+            URLQueryItem(name: "utterances", value: "true"),
+            URLQueryItem(name: "measurements", value: "true")
         ]
 
         if let languageCode {
