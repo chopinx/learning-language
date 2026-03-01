@@ -74,11 +74,11 @@ User assumptions:
 1. View `Sentence X of Y`.
 2. Drag sentence progress slider to jump if needed.
 3. Toggle source sentence visibility (show/hide).
-4. Play sentence segment.
-5. Record user voice.
-6. Transcribe user voice via Deepgram.
-7. Compare source vs user transcript.
-8. Review token-level highlights and move to next sentence.
+4. **Tap to listen**: tap the play button to hear the sentence.
+5. **Hold to record**: press and hold the record button to capture voice.
+6. **Release to auto-process**: releasing the button automatically transcribes, compares, and scores.
+7. **Swipe up to cancel**: during recording, swipe up to cancel (with visual indicator).
+8. Review token-level highlights and accuracy score, then move to next sentence.
 
 ## Journey D: Resume later
 1. Reopen app.
@@ -185,15 +185,18 @@ User assumptions:
   - progress states: generating audio, preparing session, sentence split
 
 ## Screen 3: Practice
-- Header: `Sentence X of Y`.
+- Header: `Sentence X of Y` with session progress bar.
 - Draggable sentence slider.
 - `Prev` / `Next` actions.
 - Show/hide source sentence toggle.
-- Sentence playback control.
-- Record + transcribe user voice controls.
-- Diff-highlighted compare result.
+- **Tap-to-listen**: tap play button to hear sentence audio.
+- **Hold-to-record button**: large circular button.
+  - Press and hold: starts recording, shows waveform + duration + "Release to compare" hint.
+  - Release: auto-stops recording → auto-transcribes via Deepgram → auto-compares → shows score.
+  - Swipe up while holding: cancels recording. Show "↑ Swipe up to cancel" indicator below the button during recording. Show "Release to cancel" when swiped up past threshold.
+- Diff-highlighted compare result with accuracy percentage.
 - Summary chips: missing/wrong/extra counts.
-- `Done and Next` CTA.
+- `Done and Next` CTA with accuracy score.
 
 ## Screen 4: Settings
 - Secure Deepgram API key field.
