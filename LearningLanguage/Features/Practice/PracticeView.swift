@@ -290,6 +290,7 @@ struct PracticeView: View {
             Text(formattedDuration)
                 .font(.title2.weight(.bold).monospacedDigit())
                 .foregroundStyle(audioController.isRecording ? Color.themeTextPrimary : Color.themeTextTertiary)
+                .frame(maxWidth: .infinity)
 
             // Waveform — always reserves space (28pt height)
             waveformView
@@ -307,20 +308,24 @@ struct PracticeView: View {
                     }
                     .foregroundStyle(Color.themeTextSecondary)
                 } else {
-                    Text(" ") // Invisible placeholder to reserve height
+                    Text(" ")
                 }
             }
             .font(.caption.weight(.medium))
+            .frame(maxWidth: .infinity)
 
-            // Button — never moves
+            // Button — never moves, centered
             holdToRecordButton
                 .accessibilityIdentifier("recordButton")
+                .frame(maxWidth: .infinity)
 
             // Caption below
             Text(bottomCaption)
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(Color.themeTextSecondary)
+                .frame(maxWidth: .infinity)
         }
+        .multilineTextAlignment(.center)
         .appCard()
     }
 
