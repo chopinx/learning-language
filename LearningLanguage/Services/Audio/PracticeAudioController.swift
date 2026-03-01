@@ -9,13 +9,17 @@ final class PracticeAudioController: NSObject, ObservableObject {
     @Published var errorMessage: String?
     @Published var audioLevels: [CGFloat] = []
     @Published var recordingDuration: TimeInterval = 0
+    @Published var playbackProgress: Double = 0 // 0...1 within current sentence
 
     private var recorder: AVAudioRecorder?
     private var player: AVAudioPlayer?
     private var playbackStopTimer: Timer?
+    private var playbackProgressTimer: Timer?
     private var meteringTimer: Timer?
     private var durationTimer: Timer?
     private var recordingStartDate: Date?
+    private var currentStartSec: Double = 0
+    private var currentEndSec: Double = 0
 
     private static let maxLevelSamples = 40
 
@@ -28,16 +32,19 @@ final class PracticeAudioController: NSObject, ObservableObject {
             audioPlayer.delegate = self
             audioPlayer.prepareToPlay()
 
-            if let startSec {
-                audioPlayer.currentTime = max(0, startSec)
-            }
+            currentStartSec = startSec ?? 0
+            currentEndSec = endSec ?? audioPlayer.duration
 
+            audioPlayer.currentTime = max(0, currentStartSec)
             audioPlayer.play()
             player = audioPlayer
             isPlaying = true
+            playbackProgress = 0
 
-            if let startSec, let endSec, endSec > startSec {
-                let duration = endSec - startSec
+            startPlaybackProgressTimer()
+
+            let duration = currentEndSec - currentStartSec
+            if duration > 0 {
                 playbackStopTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false) { [weak self] _ in
                     Task { @MainActor in
                         self?.stopPlayback()
@@ -50,13 +57,59 @@ final class PracticeAudioController: NSObject, ObservableObject {
         }
     }
 
+    /// Seek to a position within the current sentence (0...1 progress).
+    func seek(to progress: Double) {
+        guard let player else { return }
+        let duration = currentEndSec - currentStartSec
+        guard duration > 0 else { return }
+
+        let targetTime = currentStartSec + duration * max(0, min(1, progress))
+        player.currentTime = targetTime
+        playbackProgress = max(0, min(1, progress))
+
+        // Reset stop timer for remaining time
+        playbackStopTimer?.invalidate()
+        let remaining = currentEndSec - targetTime
+        if remaining > 0 {
+            playbackStopTimer = Timer.scheduledTimer(withTimeInterval: remaining, repeats: false) { [weak self] _ in
+                Task { @MainActor in
+                    self?.stopPlayback()
+                }
+            }
+        }
+
+        if !player.isPlaying {
+            player.play()
+            isPlaying = true
+            startPlaybackProgressTimer()
+        }
+    }
+
     func stopPlayback() {
         playbackStopTimer?.invalidate()
         playbackStopTimer = nil
+        playbackProgressTimer?.invalidate()
+        playbackProgressTimer = nil
 
         player?.stop()
         player = nil
         isPlaying = false
+    }
+
+    private func startPlaybackProgressTimer() {
+        playbackProgressTimer?.invalidate()
+        playbackProgressTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.updatePlaybackProgress()
+            }
+        }
+    }
+
+    private func updatePlaybackProgress() {
+        guard let player, isPlaying else { return }
+        let duration = currentEndSec - currentStartSec
+        guard duration > 0 else { return }
+        playbackProgress = max(0, min(1, (player.currentTime - currentStartSec) / duration))
     }
 
     func startRecording() async {

@@ -262,24 +262,48 @@ struct PracticeView: View {
                     .accessibilityIdentifier("originalHiddenLabel")
             }
 
-            playSentenceButton
+            // Play button + seek timeline
+            HStack(spacing: 12) {
+                Button {
+                    togglePlayback()
+                } label: {
+                    Image(systemName: audioController.isPlaying ? "stop.fill" : "play.fill")
+                        .font(.body.weight(.semibold))
+                        .frame(width: 40, height: 40)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(audioController.isPlaying ? Color.themeError : Color.themePrimary)
+                .accessibilityIdentifier("playSentenceButton")
+
+                // Seekable timeline
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(Color(.systemGray5))
+                            .frame(height: 6)
+                        Capsule()
+                            .fill(Color.themePrimary)
+                            .frame(width: max(0, geo.size.width * audioController.playbackProgress), height: 6)
+
+                        // Drag handle
+                        Circle()
+                            .fill(Color.themePrimary)
+                            .frame(width: 16, height: 16)
+                            .offset(x: max(0, geo.size.width * audioController.playbackProgress - 8))
+                    }
+                    .contentShape(Rectangle())
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { value in
+                                let progress = max(0, min(1, value.location.x / geo.size.width))
+                                audioController.seek(to: progress)
+                            }
+                    )
+                }
+                .frame(height: 20)
+            }
         }
         .appCard()
-    }
-
-    private var playSentenceButton: some View {
-        Button {
-            togglePlayback()
-        } label: {
-            Label(
-                audioController.isPlaying ? "Stop" : "Play sentence",
-                systemImage: audioController.isPlaying ? "stop.fill" : "play.fill"
-            )
-            .font(.caption.weight(.semibold))
-        }
-        .buttonStyle(.borderedProminent)
-        .tint(audioController.isPlaying ? Color.themeError : Color.themePrimary)
-        .accessibilityIdentifier("playSentenceButton")
     }
 
     // MARK: - Hold-to-Record Section
