@@ -31,7 +31,7 @@ struct OnboardingGuideView: View {
         }
         .tabViewStyle(.page(indexDisplayMode: .always))
         .accessibilityIdentifier("onboardingPager")
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
+        .background(Color(.systemGroupedBackground))
         .safeAreaInset(edge: .top) {
             HStack {
                 Spacer()
@@ -70,7 +70,10 @@ struct OnboardingGuideView: View {
             Spacer(minLength: 30)
 
             Image(systemName: page.systemImage)
-                .font(.system(size: 72, weight: .light))
+                .font(.largeTitle)
+                .fontWeight(.light)
+                .imageScale(.large)
+                .scaleEffect(2.0)
                 .foregroundStyle(Color.themePrimary)
                 .symbolEffect(.bounce, value: selectedPage)
 

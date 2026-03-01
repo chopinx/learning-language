@@ -178,29 +178,26 @@ private struct SessionRow: View {
     private var progressChip: some View {
         let pct = Int(session.progress * 100)
         if pct >= 10 {
-            Text("\(pct)% done")
-                .font(.caption.weight(.bold))
-                .foregroundStyle(Color.themeSuccess)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(Color.themeSuccess.opacity(0.15), in: Capsule())
+            ChipView(
+                text: "\(pct)% done",
+                foregroundColor: .themeSuccess,
+                backgroundColor: .themeSuccess.opacity(0.15)
+            )
         } else {
-            Text("Just started")
-                .font(.caption.weight(.bold))
-                .foregroundStyle(Color.themeTextSecondary)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(Color.themeTextTertiary.opacity(0.15), in: Capsule())
+            ChipView(
+                text: "Just started",
+                foregroundColor: .themeTextSecondary,
+                backgroundColor: .themeTextTertiary.opacity(0.15)
+            )
         }
     }
 
     private var actionChip: some View {
-        Text(session.progress > 0 ? "Resume" : "Continue")
-            .font(.caption.weight(.bold))
-            .foregroundStyle(Color.themePrimary)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(Color.themePrimary.opacity(0.1), in: Capsule())
+        ChipView(
+            text: session.progress > 0 ? "Resume" : "Continue",
+            foregroundColor: .themePrimary,
+            backgroundColor: .themePrimary.opacity(0.1)
+        )
     }
 }
 

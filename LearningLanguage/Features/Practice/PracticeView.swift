@@ -49,12 +49,11 @@ struct PracticeView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 if let ws = workspace {
-                    Text(ws.shortCode)
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(Color.themePrimary)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(Color.themePrimary.opacity(0.12), in: Capsule())
+                    ChipView(
+                        text: ws.shortCode,
+                        foregroundColor: .themePrimary,
+                        backgroundColor: .themePrimary.opacity(0.12)
+                    )
                 }
             }
         }

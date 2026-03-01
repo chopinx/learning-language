@@ -116,24 +116,27 @@ struct DiffSummaryChips: View {
     var body: some View {
         HStack(spacing: 8) {
             if result.summary.missingCount > 0 {
-                chip("missing \(result.summary.missingCount)", bg: .diffMissingBg, fg: .diffMissingText)
+                ChipView(
+                    text: "missing \(result.summary.missingCount)",
+                    foregroundColor: .diffMissingText,
+                    backgroundColor: .diffMissingBg
+                )
             }
             if result.summary.wrongCount > 0 {
-                chip("wrong \(result.summary.wrongCount)", bg: .diffWrongBg, fg: .diffWrongText)
+                ChipView(
+                    text: "wrong \(result.summary.wrongCount)",
+                    foregroundColor: .diffWrongText,
+                    backgroundColor: .diffWrongBg
+                )
             }
             if result.summary.extraCount > 0 {
-                chip("extra \(result.summary.extraCount)", bg: .diffExtraBg, fg: .diffExtraText)
+                ChipView(
+                    text: "extra \(result.summary.extraCount)",
+                    foregroundColor: .diffExtraText,
+                    backgroundColor: .diffExtraBg
+                )
             }
         }
-    }
-
-    private func chip(_ label: String, bg: Color, fg: Color) -> some View {
-        Text(label)
-            .font(.caption.weight(.bold))
-            .foregroundStyle(fg)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(bg, in: Capsule())
     }
 }
 
@@ -185,5 +188,39 @@ enum FileSizeFormatter {
         if bytes < 1024 { return "\(bytes) B" }
         if bytes < 1_048_576 { return "\(bytes / 1024) KB" }
         return String(format: "%.0f MB", Double(bytes) / 1_048_576.0)
+    }
+}
+
+// MARK: - Chip Component
+
+struct ChipView: View {
+    let text: String
+    let foregroundColor: Color
+    let backgroundColor: Color
+
+    var body: some View {
+        Text(text)
+            .font(.caption.weight(.bold))
+            .foregroundStyle(foregroundColor)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(backgroundColor, in: Capsule())
+    }
+}
+
+// MARK: - Badge Component
+
+struct BadgeView: View {
+    let text: String
+    let foregroundColor: Color
+    let backgroundColor: Color
+
+    var body: some View {
+        Text(text)
+            .font(.caption2.weight(.bold))
+            .foregroundStyle(foregroundColor)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(backgroundColor, in: Capsule())
     }
 }

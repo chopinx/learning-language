@@ -111,15 +111,11 @@ struct ImportTranscribeView: View {
     // MARK: - API Key Badge
 
     private var apiKeyBadge: some View {
-        Text(hasValidKey ? "Key valid" : "Key missing")
-            .font(.caption2.weight(.bold))
-            .foregroundStyle(hasValidKey ? Color.themeSuccess : Color.themeError)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(
-                Capsule()
-                    .fill(hasValidKey ? Color.themeSuccess.opacity(0.15) : Color.themeError.opacity(0.15))
-            )
+        BadgeView(
+            text: hasValidKey ? "Key valid" : "Key missing",
+            foregroundColor: hasValidKey ? .themeSuccess : .themeError,
+            backgroundColor: hasValidKey ? .themeSuccess.opacity(0.15) : .themeError.opacity(0.15)
+        )
     }
 
     // MARK: - Pipeline Card
@@ -308,14 +304,11 @@ struct ImportTranscribeView: View {
                 Spacer()
 
                 if selectedFileSize > 0 {
-                    Text(FileSizeFormatter.string(from: selectedFileSize))
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(Color.themeSuccess)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(
-                            Capsule().fill(Color.themeSuccess.opacity(0.15))
-                        )
+                    BadgeView(
+                        text: FileSizeFormatter.string(from: selectedFileSize),
+                        foregroundColor: .themeSuccess,
+                        backgroundColor: .themeSuccess.opacity(0.15)
+                    )
                 }
             }
         }
