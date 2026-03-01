@@ -59,8 +59,6 @@ struct ImportTranscribeView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     modePicker
 
-                    pipelineCard
-
                     sourceInputCard
 
                     if creationMode == .importAudio, selectedFileURL != nil {
@@ -68,10 +66,6 @@ struct ImportTranscribeView: View {
                     }
 
                     sessionTitleCard
-
-                    if isProcessing || !completedSteps.isEmpty || failedStep != nil {
-                        progressCard
-                    }
 
                     if let errorMessage {
                         errorCard(message: errorMessage)
@@ -124,7 +118,65 @@ struct ImportTranscribeView: View {
                 resetPipelineState()
                 errorMessage = nil
             }
+            .overlay {
+                if isProcessing {
+                    processingOverlay
+                }
+            }
         }
+    }
+
+    // MARK: - Processing Overlay
+
+    private var processingOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+
+            VStack(spacing: 20) {
+                ProgressView()
+                    .controlSize(.large)
+                    .tint(Color.themePrimary)
+
+                Text(activeStep?.title ?? "Processing...")
+                    .font(.headline)
+                    .foregroundStyle(Color.themeTextPrimary)
+
+                // Step indicators
+                VStack(alignment: .leading, spacing: 10) {
+                    ForEach(currentPipelineSteps, id: \.self) { step in
+                        HStack(spacing: 10) {
+                            if completedSteps.contains(step) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(Color.themeSuccess)
+                            } else if activeStep == step {
+                                ProgressView()
+                                    .controlSize(.small)
+                            } else if failedStep == step {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(Color.themeError)
+                            } else {
+                                Image(systemName: "circle")
+                                    .foregroundStyle(Color.themeTextTertiary)
+                            }
+                            Text(step.title)
+                                .font(.subheadline)
+                                .foregroundStyle(
+                                    completedSteps.contains(step) ? Color.themeSuccess
+                                    : activeStep == step ? Color.themeTextPrimary
+                                    : Color.themeTextTertiary
+                                )
+                        }
+                    }
+                }
+            }
+            .padding(32)
+            .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 20))
+            .shadow(color: .black.opacity(0.15), radius: 20, y: 10)
+            .padding(.horizontal, 40)
+        }
+        .transition(.opacity)
+        .animation(.easeInOut(duration: 0.2), value: isProcessing)
     }
 
     // MARK: - Mode Picker
