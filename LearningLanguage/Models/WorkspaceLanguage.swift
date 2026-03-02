@@ -56,7 +56,7 @@ enum WorkspaceLanguage: String, CaseIterable, Codable, Identifiable {
         case .japanese:
             return "aura-2-thalia-en"
         case .german:
-            return "aura-2-thalia-en"
+            return "aura-2-viktoria-de"
         }
     }
 }

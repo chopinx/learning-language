@@ -888,6 +888,11 @@ struct LearningLanguageTests {
     }
 
     @Test
+    func workspaceLanguageGermanUsesGermanTTSModel() {
+        #expect(WorkspaceLanguage.german.deepgramTTSModel == "aura-2-viktoria-de")
+    }
+
+    @Test
     @MainActor
     func apiKeyManagerTracksLastValidatedAt() async {
         let keychain = InMemoryKeychainStore()
